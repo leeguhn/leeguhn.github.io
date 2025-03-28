@@ -14,8 +14,8 @@ function initializeDraggableImages() {
 
     draggables.forEach(draggable => {
         const viewport = getViewportDimensions();
-        const maxWidth = viewport.width * 0.30;
-        const maxHeight = viewport.height * 0.30;
+        const maxWidth = viewport.width * 0.28;
+        const maxHeight = viewport.height * 0.28;
 
         let scaledWidth = Math.min(maxWidth, draggable.offsetWidth);
         let scaledHeight = scaledWidth / (draggable.offsetWidth / draggable.offsetHeight);
