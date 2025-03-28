@@ -1,0 +1,757 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: "Helvetica Neue", sans-serif;
+    height: 100%;
+    font-size: 16px;
+}
+
+.container {
+    display: flex;
+    height: 100vh;
+}
+
+.fade-transition {
+    opacity: 0;
+    transition: opacity .333s ease-in-out;
+}
+
+.fade-transition.show {
+    opacity: 1;
+}
+
+.sidebar {
+    width: 15vw; /* Use viewport width */
+    min-width: 222px; /* Minimum width to prevent cramming */
+    height: 100vh; /* Use viewport height */
+    overflow-y: auto;
+    background-color: white;
+    padding: 2rem 1.5rem;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+}   
+
+.header-container {
+    display: flex;
+    align-items: baseline;
+    margin-bottom: 1.25rem;
+}
+
+.sidebar h1 {
+    font-size: 1.5625rem;
+    margin: 0 0 0.25rem 0;
+}
+
+.sidebar h1 a {
+    text-decoration: none;
+    color: red;
+    font-size: inherit;
+}
+
+.sidebar h1 a:hover,
+.sidebar h1 a.active {
+    color: red;
+}
+
+.sidebar ul {
+    list-style-type: none;
+    padding: 0;
+    flex-grow: 1;
+}
+
+.sidebar li {
+    margin-bottom: 0.625rem;
+}
+
+.sidebar a {
+    text-decoration: none;
+    font-size: 1.25rem;
+    color: black;
+    transition: color 0.3s ease;
+}
+
+.sidebar a.active {
+    color: black;
+    font-weight: bold;
+}
+
+.content {
+    flex-grow: 1;
+    padding: 0rem 1.5rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    position: relative;
+}
+
+.no-scrolling {
+    overflow: hidden;
+    height: 100vh;
+}
+
+.home-content {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.home-content img {
+    max-width: 100%;
+    max-height: 100vh;
+    object-fit: contain;
+}
+
+.content-wrapper > * {
+    max-width: 100%;
+}
+
+.content h2#page-title {
+    font-size: 1.5625rem;
+    margin: 0 0 1.25rem 0;
+    color: black;
+}
+
+.content h1,
+.content h2,
+.content h3,
+.content h4,
+.content h5,
+.content h6 {
+    margin-bottom: 1rem;
+}
+
+.content p,
+.content ul,
+.content ol {
+    margin-bottom: 1rem;
+    line-height: 1.6;
+}
+
+.content h1 {
+    font-size: 1.5625rem;
+    color: black;
+    margin-top: 0;
+    margin-bottom: 1.25rem;
+}
+
+.content p {
+    font-size: 1.25rem;
+    margin-bottom: 0.5em;
+    
+}
+
+.content img[src$=".gif"] {
+    /* You can add specific styles for GIFs here if needed */
+    /* For example: */
+    border: 0px solid #ddd;
+    border-radius: 4px;
+    padding: 5px;
+}
+
+/* If you want to center GIFs */
+.gif-container {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.gif-container img {
+    display: inline-block;
+    max-width: 100%;
+    height: auto;
+}
+
+#image-preview-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.preview-container {
+    position: relative;
+    max-width: 90%;
+    max-height: 90%;
+}
+
+#preview-image {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+#close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: rgba(255, 255, 255, 0.5);
+    border: none;
+    font-size: 18px;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+/* Styles for images outside project-grid */
+.content img,
+.content img[src$=".gif"] {
+    max-width: 100%;
+    object-fit: contain;
+}
+
+
+.image-wrapper {
+    margin: 20px 0;
+    margin-right: 2rem;
+    max-height: 100vh;
+    text-align: center;
+    overflow: hidden; /* Prevent overflow */
+}
+
+.image-wrapper img {
+    overflow: hidden;
+    max-height: 93vh; /* Limit the image height to the viewport height */
+}
+
+.project-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: -2rem;
+}
+  
+.project-nav {
+    display: flex;
+    align-items: center;
+    margin: 0 0 1.25rem 1rem;
+}
+  
+.project-link {
+    color: #888;
+    text-decoration: none;
+    margin-right: 1rem;
+    transition: color 0.3s ease;
+    font-size: 1.5625rem;
+    font-weight: bold;
+    line-height: 1;
+} 
+
+.project-link:hover {
+    color: blue;
+}
+
+.project-link.active {
+    color: red;
+}
+
+  #page-title {
+    margin: 0;
+    padding: 0;
+    font-size: 1.5625rem;
+    font-weight: bold;
+    color: #000;
+    line-height: 1;
+  }
+
+  .separator {
+    margin: 0 0 1.25rem 0.75rem;
+    color: black;
+    font-weight: bold;
+    font-size: 1.5625rem;
+    line-height: 1;
+  }
+
+  #page-title.project-link {
+    color: #000;
+  }
+    
+  #project-content {
+    width: 100%;
+    margin-top: 2rem; /* Add margin-top to create space between the line and gallery */ 
+  }
+  
+  .project-gallery {
+    width: 100%;
+    height: 90vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    }
+
+    .gallery-image-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+    }
+  
+    .gallery-image {
+        max-width: 90%;
+        max-height: 90%;
+
+        object-fit: contain;
+        cursor: pointer;
+    }
+  
+    .gallery-nav {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        padding: 1rem;
+        cursor: pointer;
+        z-index: 1;
+        color: black;
+        background-color: none;
+    }
+    
+  
+    .gallery-prev {
+    left: 1rem; /* Move the left arrow outside the gallery */
+  }
+  
+  .gallery-next {
+    right: 1rem; /* Move the right arrow outside the gallery */
+  }
+
+  .gallery-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-size: 1.5rem;
+    background-color: none;
+    color: black;
+    border: none;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+}
+
+  /* Justify row class for equal spacing */
+.justify-row {
+    display: flex;
+    justify-content: flex-start; /* Distributes space evenly */
+    flex-wrap: wrap; /* Allows wrapping to the next line */
+    margin: 0 -0.5rem; /* Adjusts margin for spacing */
+} 
+
+.image-frame {
+    position: relative;
+    overflow: hidden; /* Hides overflow for zoom effect */
+    margin: 0.5rem; /* Space around each image */
+    max-width: calc(25% - 1em); /* Set max width to 1/4 of the content-wrapper */
+    height: auto; /* Maintain aspect ratio */
+    transition: box-shadow 0.3s ease, opacity 0.3s ease; /* Smooth transition for hover effects */
+}
+
+.image-frame img {
+    display: block;
+    max-width: 100%; /* Ensures image fills the frame */
+    max-height: 100%; /* Maintain aspect ratio */
+    margin: 0; /* Remove any default margin */
+    padding: 0; /* Remove any default padding */
+    transition: opacity 0.4s ease;
+}
+
+.image-frame img.loaded {
+    opacity: 1;
+}
+
+/* Subtle hover effect */
+.image-frame:hover {
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); /* Subtle shadow on hover */
+    opacity: 0.9; /* Slightly reduce opacity on hover */
+    cursor: pointer;
+}
+
+/* TRIP */
+
+.trip-gallery {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: flex-start;
+    height: calc(100vh - 100px);
+    overflow-x: auto;
+    padding-right: 2rem;
+}
+
+.trip-landscape-container,
+.trip-portrait-container {
+    display: flex;
+
+    height: 100%;
+}
+
+.trip-landscape-container {
+    flex: 2;
+    gap: 1.5rem;
+}
+
+.trip-portrait-container {
+    flex: 3;
+    gap: 1.5rem;
+}
+
+.trip-column {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    height: 100%;
+}
+
+.trip-frame {
+    background: #000;
+    padding: 0.6rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 6px 20px rgba(0, 0, 0, 0.05);
+    max-width: 200px;
+    height: 135px;
+    margin: 0 auto;
+    transition: box-shadow 0.3s ease;
+}
+
+.trip-frame:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15), 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.trip-frame.landscape {
+    width: 180px; /* Adjust this value as needed */
+}
+
+.trip-inner-frame {
+    background: #fff;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    padding: 0.5rem;
+}
+
+.trip-inner-frame.portrait {
+    padding: 0.5rem 0.5rem;
+    width: 100px;
+}
+
+.trip-frame img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    margin: 0;
+    box-shadow: none;
+    scale: 0.75;
+}
+
+.trip-content {
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
+.trip-content.loaded {
+    opacity: 1;
+}
+
+.content-wrapper {
+    max-width: 100%;
+    width: 100%;
+    padding-right: 4rem;
+    margin: 0 auto 1.25rem auto;
+    padding: 1rem;
+    box-sizing: border-box;
+    opacity: 1;
+    transition: opacity 0.333s ease-in-out;
+}
+
+.content-wrapper.fade-out {
+    opacity: 0;
+}
+
+
+#project-content {
+    opacity: 1;
+    transition: opacity .222s ease-in-out;
+}
+
+#project-content.fade-out {
+    opacity: 0;
+}
+
+.sidebar {
+    z-index: 1000;
+}
+
+.mobile-nav-container {
+    display: none;
+}
+
+
+/* Hide both images by default */
+.desktop-image, .mobile-image {
+    display: none;
+}
+
+.hide-paragraphs p {
+    color: white;
+}
+
+.project-container {
+    display: flex;
+    flex-direction: column;
+    min-width: 100%;
+}
+
+.text-container {
+    margin-bottom: 1rem;
+    margin-top: -1rem;
+    text-align: justify;
+}
+
+.text-container p {
+    margin-bottom: 1rem;
+    font-size: 16.5px;
+    max-width: 98%;
+    font-family: "Helvetica Neue", sans-serif;
+}
+
+@media (min-width: 769px) {
+    .desktop-image {
+        display: none;
+    }
+}
+
+/* Mobile styles */
+@media (max-width: 768px) {
+
+    .fade-in-image {
+        opacity: 0;
+        transition: opacity 0.5 s ease-in-out;
+    }
+
+    .container {
+        flex-direction: column;
+        height: 100%;
+        overflow: hidden;
+    }
+
+    .mobile-image {
+        display: none;
+    }
+
+    .sidebar {
+        display: none;
+    }
+
+    .mobile-nav-container {
+        display: block;
+        padding: 1rem;
+        z-index: 1001;
+    }
+
+   .mobile-nav-header {
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center; 
+        padding: 0rem; 
+        background-color: white; 
+        position: sticky; 
+        top: 0; 
+        z-index: 1001; 
+    }
+
+    .mobile-title {
+        font-size: 1.5625rem;
+        margin: 0 0 0rem 0;
+        z-index: 1001;
+    }
+
+    .mobile-title a {
+        text-decoration: none;
+        color: red;
+        font-weight: bold;
+        z-index: 1001;
+    }
+
+    .mobile-nav-toggle {
+        position: fixed;
+        top: 1rem;
+        right: 1rem;
+        z-index: 1000;
+        font-size: 1.5rem;
+        background: none;
+        border: none;
+        color: black;
+        display: block;
+        cursor: pointer;
+    }
+
+    .mobile-sidebar {
+        display: block;
+        position: fixed;
+        top: -1rem;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: white;
+        z-index: 999;
+        padding: 4rem 1rem 1rem;
+        transition: transform 0.666s ease;
+        transform: translateX(-100%);
+    }
+    
+    .mobile-sidebar.active {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+
+    /* Add transition for the chevron icon */
+    .mobile-nav-toggle i {
+        transition: transform 0.3s ease, font-size 0.3s ease;
+        font-size: 1.7rem;
+    }
+
+    .mobile-nav-toggle i.rotate {
+        transform: rotate(180deg);
+    }
+
+    .mobile-sidebar ul {
+        list-style-type: none;
+        padding: 0;
+    }
+
+    .mobile-sidebar li {
+        margin-bottom: 1rem;
+    }
+
+    .mobile-sidebar a {
+        text-decoration: none;
+        font-size: 1.25rem;
+        color: black;
+    }
+
+    .content {
+        padding: 0rem; 
+    }
+
+    #project-content {
+        opacity: 1;
+    }
+
+    #project-content.fade-out {
+        opacity: 0;
+    }
+
+    .project-header {
+        flex-direction: column;
+        align-items: flex-start;
+        margin-bottom: 0.5rem; /* Reduce spacing between Ceramics and Artifact */
+        margin-top: 2.77rem;
+        opacity: 1 !important;
+        transition: none !important; 
+    }
+
+    .project-nav {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start !important;
+        margin-top: -0.5rem; /* Reduce spacing between Ceramics and Artifact */
+        padding-left: 1rem; /* Align project links */
+    }
+
+    .project-link {
+        margin-bottom: 0.5rem;
+        position: relative;
+        padding-left: 1.5rem;
+    }
+
+    .project-link::before {
+        content: 'ㄴ';
+        position: absolute;
+        left: 0;
+        top: 0;
+    }
+
+    .content-wrapper {
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        padding: 0 1rem; 
+        margin-top: -3rem;
+        padding-bottom: 10rem; /* Adds 4rem of space at the bottom on mobile */
+    }
+
+    .project-grid > div {
+        width: 100%;
+    }
+
+    .image-frame {
+        max-width: 100%;
+
+    }
+
+    .trip-gallery {
+        flex-direction: column;
+        height: auto;
+        overflow-x: visible;
+        padding-right: 0;
+    }
+
+    .trip-landscape-container,
+    .trip-portrait-container {
+        flex-direction: column;
+        height: auto;
+    }
+
+    .trip-frame {
+        max-width: 100%;
+        height: auto;
+        margin-bottom: 1rem;
+    }
+
+    .separator {
+        display: none;
+    }
+
+    /* Remove touch highlight effect on mobile devices */
+    * {
+        -webkit-tap-highlight-color: none;
+    }
+
+    .text-container {
+        margin-top: -3rem;
+        margin-bottom: 1rem;
+        text-align: left;
+    }
+
+    .image-wrapper {
+        margin: 20px 0;
+        margin-right: 0rem;
+        text-align: center;
+    }
+}
+
+#project-content em {
+    font-style: italic;
+}
+
+#project-content strong {
+    font-weight: bold;
+}
+
+#project-content u {
+    text-decoration: underline;
+}
