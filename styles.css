@@ -146,6 +146,7 @@ hr {
   justify-content: center;
   gap: 10px; /* Adjust the gap between images as needed */
   flex-wrap: wrap; /* Wrap images if there are too many to fit in one line */
+  margin-bottom: -20px;
 }
 
 .image-row img {
