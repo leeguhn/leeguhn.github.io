@@ -77,7 +77,13 @@ function initDragEvents(draggables) {
 
     draggable.addEventListener('mouseup', function(event) {
       if (!isDragging && this.getAttribute('data-href')) {
-        window.location.href = this.getAttribute('data-href');
+        // Special handling for trip image
+        if (this.id === 'trip') {
+          event.preventDefault();
+          window.open(this.getAttribute('data-href'), '_blank');
+        } else {
+          window.location.href = this.getAttribute('data-href');
+        }
       }
     }, false);
 
