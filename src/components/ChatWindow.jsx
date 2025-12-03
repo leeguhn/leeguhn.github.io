@@ -5,7 +5,7 @@ import './ChatWindow.css';
 
 const ChatWindow = ({ messages, currentMessage, onAmountSubmit, logger, currentState, showInput }) => {
   const messagesEndRef = useRef(null);
-  const [delayedShowInput, setDelayedShowInput] = useState(false);
+  const [isInputEnabled, setIsInputEnabled] = useState(false);
   const inputAvailableTimeRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -14,7 +14,7 @@ const ChatWindow = ({ messages, currentMessage, onAmountSubmit, logger, currentS
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages, currentMessage]);
 
   useEffect(() => {
     // Log message render event when new message appears
@@ -25,12 +25,12 @@ const ChatWindow = ({ messages, currentMessage, onAmountSubmit, logger, currentS
     }
   }, [currentMessage, currentState, logger]);
 
-  // Delay showing input box until after animation completes
+  // Delay enabling input until after animation completes
   useEffect(() => {
     if (showInput) {
-      setDelayedShowInput(false);
+      setIsInputEnabled(false);
       const timer = setTimeout(() => {
-        setDelayedShowInput(true);
+        setIsInputEnabled(true);
         // Record when input becomes available
         inputAvailableTimeRef.current = performance.now();
         logger.logEvent(currentState, 'input_available', {
@@ -40,7 +40,7 @@ const ChatWindow = ({ messages, currentMessage, onAmountSubmit, logger, currentS
 
       return () => clearTimeout(timer);
     } else {
-      setDelayedShowInput(false);
+      setIsInputEnabled(false);
       inputAvailableTimeRef.current = null;
     }
   }, [showInput, currentState, logger]);
@@ -60,14 +60,13 @@ const ChatWindow = ({ messages, currentMessage, onAmountSubmit, logger, currentS
         ))}
         <div ref={messagesEndRef} />
       </div>
-      {delayedShowInput && (
-        <InputBox
-          onSubmit={onAmountSubmit}
-          logger={logger}
-          currentState={currentState}
-          inputAvailableTime={inputAvailableTimeRef.current}
-        />
-      )}
+      <InputBox
+        onSubmit={onAmountSubmit}
+        logger={logger}
+        currentState={currentState}
+        inputAvailableTime={inputAvailableTimeRef.current}
+        disabled={!isInputEnabled}
+      />
     </div>
   );
 };

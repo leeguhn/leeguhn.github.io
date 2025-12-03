@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './InputBox.css';
 
-const InputBox = ({ onSubmit, logger, currentState, inputType = 'text', expectedAnswer = null, inputAvailableTime }) => {
+const InputBox = ({ onSubmit, logger, currentState, inputType = 'text', expectedAnswer = null, inputAvailableTime, disabled = false }) => {
   const [value, setValue] = useState('');
   const [hasTyped, setHasTyped] = useState(false);
   const [error, setError] = useState('');
@@ -17,6 +17,13 @@ const InputBox = ({ onSubmit, logger, currentState, inputType = 'text', expected
     setKeystrokes([]);
     setFirstKeystrokeTime(null);
   }, [currentState]);
+
+  useEffect(() => {
+    // Auto-focus input when it becomes enabled
+    if (!disabled && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [disabled]);
 
   const handleKeyDown = (e) => {
     const keystrokeTime = performance.now();
@@ -265,8 +272,9 @@ const InputBox = ({ onSubmit, logger, currentState, inputType = 'text', expected
           placeholder={getPlaceholder()}
           className={`amount-input ${error ? 'input-error-border' : ''}`}
           autoFocus
+          disabled={disabled}
         />
-        <button type="submit" className="submit-button">
+        <button type="submit" className="submit-button" disabled={disabled}>
           Send
         </button>
       </div>

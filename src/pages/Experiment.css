@@ -7,6 +7,8 @@
   justify-content: center;
   background: #e8e8e8;
   padding: 20px;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 .experiment-info {

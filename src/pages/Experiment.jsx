@@ -145,9 +145,6 @@ const Experiment = () => {
 
   return (
     <div className="experiment-container">
-      <div className="experiment-info">
-        Condition {currentConditionIndex + 1} of {conditions.length}: {conditions[currentConditionIndex]}
-      </div>
       <ChatWindow
         messages={messages}
         currentMessage={currentMessage}
