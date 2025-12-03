@@ -22,7 +22,23 @@ const Experiment = () => {
   
   // Get participant info from URL
   const participantId = searchParams.get('participant_id') || 'test_user';
-  const conditionOrder = searchParams.get('condition_order') || 'none-low';
+  
+  // Randomize condition order if not provided (50/50 chance)
+  const getConditionOrder = () => {
+    const urlOrder = searchParams.get('condition_order');
+    if (urlOrder) return urlOrder;
+    
+    // Check session storage
+    const storedOrder = window.sessionStorage.getItem('condition_order');
+    if (storedOrder) return storedOrder;
+    
+    // Generate random order: 50% chance for each
+    const randomOrder = Math.random() < 0.5 ? 'none-low' : 'low-none';
+    window.sessionStorage.setItem('condition_order', randomOrder);
+    return randomOrder;
+  };
+  
+  const conditionOrder = getConditionOrder();
   
   // Store condition order in session storage
   useEffect(() => {
@@ -49,9 +65,10 @@ const Experiment = () => {
     if (currentConditionIndex < conditions.length) {
       const condition = conditions[currentConditionIndex];
       const conditionData = conditionMap[condition];
+      const sessionNumber = currentConditionIndex + 1; // 1 or 2
       
       const sm = new StateMachine(conditionData);
-      const log = new Logger(participantId, condition);
+      const log = new Logger(participantId, condition, conditionOrder, sessionNumber);
       
       setStateMachine(sm);
       setLogger(log);
@@ -65,11 +82,16 @@ const Experiment = () => {
         isBot: true
       }]);
       setShowInput(welcomeMessage.type === 'input');
+      
+      // Set bot prompt if this message expects input
+      if (welcomeMessage.type === 'input') {
+        log.setBotPrompt(sm.getCurrentState(), welcomeMessage.message);
+      }
     } else {
       // All conditions completed, go to survey
       navigate(`/survey?participant_id=${participantId}`);
     }
-  }, [currentConditionIndex, participantId, navigate]);
+  }, [currentConditionIndex, participantId, navigate, conditionOrder]);
 
   const moveToNextState = () => {
     if (!stateMachine) return;
@@ -100,6 +122,18 @@ const Experiment = () => {
             isBot: true
           }]);
           setTimeout(() => {
+            // Store logger in session storage for survey
+            if (logger) {
+              window.sessionStorage.setItem('currentLogger', JSON.stringify({
+                participantId: logger.participantId,
+                condition: logger.condition,
+                conditionOrder: logger.conditionOrder,
+                sessionNumber: logger.sessionNumber,
+                sessionStart: logger.sessionStart,
+                userResponses: logger.userResponses
+              }));
+            }
+            
             // Go to survey with current condition info
             const currentCondition = conditions[currentConditionIndex];
             navigate(`/survey?participant_id=${participantId}&condition=${currentCondition}&condition_number=${currentConditionIndex + 1}&total_conditions=${conditions.length}&condition_order=${conditionOrder}`);
@@ -113,6 +147,11 @@ const Experiment = () => {
             isBot: true
           }]);
           setShowInput(nextMessage.type === 'input');
+          
+          // Set bot prompt if this message expects input
+          if (nextMessage.type === 'input' && logger) {
+            logger.setBotPrompt(stateMachine.getCurrentState(), nextMessage.message);
+          }
         }, 500);
       }
     }

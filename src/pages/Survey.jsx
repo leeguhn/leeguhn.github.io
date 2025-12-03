@@ -61,21 +61,37 @@ const Survey = () => {
       originalConditionOrder
     });
 
-    // Save survey data in background (don't wait for it)
-    const surveyData = {
-      participant_id: participantId,
-      condition: condition,
-      condition_number: conditionNumber,
-      ...responses,
-      completed_at: new Date().toISOString(),
-      timestamp: performance.now()
-    };
-    
-    addDoc(collection(db, 'surveys'), surveyData)
-      .then(() => console.log('Survey saved successfully'))
-      .catch((error) => console.error('Error submitting survey:', error));
+    // Get logger data from session storage and save complete session
+    const loggerDataStr = window.sessionStorage.getItem('currentLogger');
+    if (loggerDataStr) {
+      try {
+        const loggerData = JSON.parse(loggerDataStr);
+        
+        // Create complete session data
+        const sessionData = {
+          participant_id: participantId,
+          condition: loggerData.condition,
+          condition_order: loggerData.conditionOrder,
+          session_number: loggerData.sessionNumber,
+          session_start: new Date(Date.now() - (performance.now() - loggerData.sessionStart)).toISOString(),
+          session_duration_ms: performance.now() - loggerData.sessionStart,
+          user_responses: loggerData.userResponses,
+          survey_responses: responses,
+          completed_at: new Date().toISOString()
+        };
 
-    // Navigate immediately without waiting for save
+        // Save to Firebase
+        await addDoc(collection(db, 'experiment_sessions'), sessionData);
+        console.log('Complete session saved:', sessionData);
+        
+        // Clear logger from session storage
+        window.sessionStorage.removeItem('currentLogger');
+      } catch (error) {
+        console.error('Error saving complete session:', error);
+      }
+    }
+
+    // Navigate immediately
     if (conditionNumber < totalConditions) {
       // Move to next condition (start_from is zero-based index)
       const nextStart = conditionNumber; // conditionNumber is 1-based, so using it starts at next index
