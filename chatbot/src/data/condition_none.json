@@ -1,0 +1,66 @@
+{
+  "greeting": {
+    "message": "Welcome to SafeBank Support. To begin, please type the security code displayed above: X9J2P.",
+    "type": "input"
+  },
+  "identification": {
+    "message": "Thank you. Please enter your email address to verify your account.",
+    "type": "input"
+  },
+  "phone_verification": {
+    "message": "Please enter the last 4 digits of your phone number.",
+    "type": "input"
+  },
+  "math_verification": {
+    "message": "For additional security, please answer the following question: What is 6 + 7?",
+    "type": "input"
+  },
+  "secret_question": {
+    "message": "Now please answer your secret question: What is the capital of France?",
+    "type": "input"
+  },
+  "protocol_authorization": {
+    "message": "To access private transaction data, please type the following phrase exactly: I authorize this investigation.",
+    "type": "input",
+    "expectedAnswer": "I authorize this investigation"
+  },
+  "issue_identification": {
+    "message": "Authorization accepted. Please briefly describe the problem you are contacting us about today.",
+    "type": "input"
+  },
+  "recipient_name": {
+    "message": "Please enter the name of the person you sent funds to.",
+    "type": "input"
+  },
+  "relationship_declaration": {
+    "message": "For our anti-fraud records, please describe your relationship to the recipient and the reason for this transfer in a full sentence.",
+    "type": "input"
+  },
+  "amount_confirmation": {
+    "message": "Thank you. Please enter the exact amount of the transfer.",
+    "type": "input"
+  },
+  "retrieving": {
+    "message": "I am retrieving the final status now.",
+    "type": "wait",
+    "duration": 1500
+  },
+  "timeout": {
+    "message": "System timeout. Connection to the server has been interrupted. Please type 'Continue' to reconnect.",
+    "type": "input",
+    "expectedAnswer": "Continue"
+  },
+  "result": {
+    "message": "I have located the transaction. It is currently pending due to a security hold. The funds are secure and will be released by 5:00 PM. To release these funds, please type the phrase: I approve this request.",
+    "type": "input",
+    "expectedAnswer": "I approve this request"
+  },
+  "service_feedback": {
+    "message": "I have logged this information. Do you have any other questions regarding this case?",
+    "type": "input"
+  },
+  "closing": {
+    "message": "Thank you for contacting SafeBank. Goodbye.",
+    "type": "final"
+  }
+}

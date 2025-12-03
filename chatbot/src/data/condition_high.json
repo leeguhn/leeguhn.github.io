@@ -1,0 +1,43 @@
+{
+  "welcome": {
+    "message": "Welcome to SafeBank Support! 👋 To begin, please type the security code displayed above: A4W9C 🔡.",
+    "type": "input"
+  },
+  "identification": {
+    "message": "Thank you! ✨ Please enter your email address 📧 to verify your account.",
+    "type": "input"
+  },
+  "math_verification": {
+    "message": "For additional security 🛡️, please answer the following question: What is 6 + 7? 🔢",
+    "type": "input"
+  },
+  "secret_question": {
+    "message": "Now please answer your secret question 🔒: What is the capital of France? 🇫🇷",
+    "type": "input"
+  },
+  "issue_categorization": {
+    "message": "Identity confirmed! ✅ Please briefly describe the type of issue 💬 you are experiencing (e.g., Login, Card, or Transfer).",
+    "type": "input"
+  },
+  "recipient": {
+    "message": "I understand 👂. I can help trace that transaction for you! 🕵️ Please type the name of the recipient 👤.",
+    "type": "input"
+  },
+  "amount": {
+    "message": "Noted! 👌 Please enter the exact amount 💵 of the transfer.",
+    "type": "input"
+  },
+  "processing": {
+    "message": "Please wait ✋ while I retrieve the transaction details from the server 🔎.",
+    "type": "wait",
+    "duration": 3000
+  },
+  "result": {
+    "message": "The transaction is currently pending ⏳ security review. The funds are secure 🔒 and will be released by 5:00 PM 🕔. Please confirm this action by typing the phrase: I approve this request.",
+    "type": "input"
+  },
+  "closing": {
+    "message": "I have logged this inquiry in your file 📝. You may now close this chat window! ❌",
+    "type": "final"
+  }
+}
