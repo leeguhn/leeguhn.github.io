@@ -80,18 +80,24 @@ const Survey = () => {
           completed_at: new Date().toISOString()
         };
 
-        // Save to Firebase
+        console.log('Saving complete session data:', sessionData);
+        
+        // Save to Firebase and wait for completion
         await addDoc(collection(db, 'experiment_sessions'), sessionData);
-        console.log('Complete session saved:', sessionData);
+        console.log('Complete session saved successfully!');
         
         // Clear logger from session storage
         window.sessionStorage.removeItem('currentLogger');
       } catch (error) {
         console.error('Error saving complete session:', error);
+        alert('Error saving session data. Please try again.');
+        return; // Don't navigate if save failed
       }
+    } else {
+      console.warn('No logger data found in session storage');
     }
 
-    // Navigate immediately
+    // Navigate after successful save
     if (conditionNumber < totalConditions) {
       // Move to next condition (start_from is zero-based index)
       const nextStart = conditionNumber; // conditionNumber is 1-based, so using it starts at next index
@@ -166,6 +172,7 @@ const Survey = () => {
                 value={responses.message_style}
                 onChange={(e) => handleChange('message_style', e.target.value)}
                 className="survey-select"
+                required
               >
                 <option value="">Select an option</option>
                 <option value="no_emojis">No emojis</option>
@@ -190,6 +197,7 @@ const Survey = () => {
                     value="yes"
                     checked={responses.transaction_complete === 'yes'}
                     onChange={(e) => handleChange('transaction_complete', e.target.value)}
+                    required
                   />
                   <span>Yes</span>
                 </label>
