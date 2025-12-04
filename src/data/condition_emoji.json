@@ -3,6 +3,10 @@
     "message": "Welcome to SafeBank Support! 👋 To begin, please type the security code displayed above: AJ3W1 🔡.",
     "type": "input"
   },
+  "verification_greeting": {
+    "message": "Security code has been verified. ✔️ How are you today? 😊",
+    "type": "input"
+  },
   "identification": {
     "message": "Thank you! ✨ Please enter your email address 📧 to verify your account.",
     "type": "input"

@@ -26,6 +26,9 @@ const Welcome = () => {
           Thank you for participating in our research study. You will interact with two different versions 
           of a chatbot and provide feedback through short surveys.
         </p>
+        <p className="welcome-description" style={{fontWeight: '500', color: '#444'}}>
+          You sent $50 to 'Mom' yesterday, but she hasn't received it. You will need to verify your identity and provide details. Please type your answers naturally.
+        </p>
         <p className="welcome-description">
           The entire study takes approximately 5-10 minutes to complete.
         </p>

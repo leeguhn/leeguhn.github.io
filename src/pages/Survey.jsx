@@ -21,9 +21,6 @@ const Survey = () => {
     appropriate_formality: 4,
     appropriate_context: 4,
     
-    // Message style
-    message_style: '',
-    
     // Transaction status
     transaction_complete: ''
   });
@@ -220,27 +217,6 @@ const Survey = () => {
             {renderScale('appropriate_tone', 'The tone of the messages was:', 'Inappropriate', 'Appropriate')}
             {renderScale('appropriate_formality', 'The level of formality was:', 'Inappropriate', 'Appropriate')}
             {renderScale('appropriate_context', 'For a banking context, the style was:', 'Inappropriate', 'Appropriate')}
-          </section>
-
-          <section className="survey-section">
-            <h2>Message Style</h2>
-            <div className="survey-question">
-              <label className="question-label">
-                Which message style did you prefer overall?
-              </label>
-              <select
-                value={responses.message_style}
-                onChange={(e) => handleChange('message_style', e.target.value)}
-                className="survey-select"
-                required
-              >
-                <option value="">Select an option</option>
-                <option value="no_emojis">No emojis</option>
-                <option value="few_emojis">A few emojis</option>
-                <option value="many_emojis">Many emojis</option>
-                <option value="no_preference">No preference</option>
-              </select>
-            </div>
           </section>
 
           <section className="survey-section">
