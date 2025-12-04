@@ -50,7 +50,7 @@ const Survey = () => {
     });
     
     console.log('Firebase db object:', db);
-    console.log('Collection function:', collection);
+    console.log('Firebase app check:', db?.app?.options?.projectId);
 
     // Determine next navigation target FIRST
     const originalConditionOrder = searchParams.get('condition_order') || 
@@ -89,8 +89,14 @@ const Survey = () => {
         console.log('Saving complete session data:', sessionData);
         console.log('About to call addDoc with collection:', collection(db, 'experiment_sessions'));
         
-        // Save to Firebase and wait for completion
-        const docRef = await addDoc(collection(db, 'experiment_sessions'), sessionData);
+        // Save to Firebase with timeout
+        const savePromise = addDoc(collection(db, 'experiment_sessions'), sessionData);
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Firebase save timed out after 10 seconds')), 10000)
+        );
+        
+        console.log('Waiting for Firebase save...');
+        const docRef = await Promise.race([savePromise, timeoutPromise]);
         console.log('Complete session saved successfully with ID:', docRef.id);
         
         // Clear logger from session storage
