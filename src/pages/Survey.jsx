@@ -48,6 +48,9 @@ const Survey = () => {
       totalConditions,
       responses
     });
+    
+    console.log('Firebase db object:', db);
+    console.log('Collection function:', collection);
 
     // Determine next navigation target FIRST
     const originalConditionOrder = searchParams.get('condition_order') || 
@@ -63,9 +66,12 @@ const Survey = () => {
 
     // Get logger data from session storage and save complete session
     const loggerDataStr = window.sessionStorage.getItem('currentLogger');
-    if (loggerDataStr) {
-      try {
+    console.log('Logger data from storage:', loggerDataStr ? 'Found' : 'Not found');
+    
+    try {
+      if (loggerDataStr) {
         const loggerData = JSON.parse(loggerDataStr);
+        console.log('Parsed logger data:', loggerData);
         
         // Create complete session data
         const sessionData = {
@@ -81,20 +87,27 @@ const Survey = () => {
         };
 
         console.log('Saving complete session data:', sessionData);
+        console.log('About to call addDoc with collection:', collection(db, 'experiment_sessions'));
         
         // Save to Firebase and wait for completion
-        await addDoc(collection(db, 'experiment_sessions'), sessionData);
-        console.log('Complete session saved successfully!');
+        const docRef = await addDoc(collection(db, 'experiment_sessions'), sessionData);
+        console.log('Complete session saved successfully with ID:', docRef.id);
         
         // Clear logger from session storage
         window.sessionStorage.removeItem('currentLogger');
-      } catch (error) {
-        console.error('Error saving complete session:', error);
-        alert('Error saving session data. Please try again.');
-        return; // Don't navigate if save failed
+      } else {
+        console.warn('No logger data found in session storage - skipping save');
       }
-    } else {
-      console.warn('No logger data found in session storage');
+    } catch (error) {
+      console.error('Error saving complete session:', error);
+      console.error('Error details:', {
+        message: error.message,
+        code: error.code,
+        stack: error.stack,
+        fullError: error
+      });
+      alert(`Error saving session data: ${error.message}. Please try again or contact support.`);
+      return; // Don't navigate if save failed
     }
 
     // Navigate after successful save

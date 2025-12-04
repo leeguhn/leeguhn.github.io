@@ -38,9 +38,22 @@ Set these in Firebase Console → Firestore Database → Rules:
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Legacy events collection (can be removed if not needed)
     match /events/{document=**} {
       allow create: if true;  // Allow participants to log events
       allow read, update, delete: if false;  // Only you can read via console
+    }
+    
+    // New experiment sessions collection
+    match /experiment_sessions/{document=**} {
+      allow create: if true;  // Allow participants to submit session data
+      allow read, update, delete: if false;  // Only you can read via console
+    }
+    
+    // Legacy surveys collection (can be removed if not needed)
+    match /surveys/{document=**} {
+      allow create: if true;
+      allow read, update, delete: if false;
     }
   }
 }

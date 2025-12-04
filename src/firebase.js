@@ -12,7 +12,15 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
+let app;
+let db;
 
-// Initialize Firestore
-export const db = getFirestore(app);
+try {
+  app = initializeApp(firebaseConfig);
+  db = getFirestore(app);
+} catch (error) {
+  console.error('Failed to initialize Firebase:', error);
+  throw error;
+}
+
+export { db };
