@@ -1,6 +1,6 @@
 {
   "greeting": {
-    "message": "Welcome to SafeBank Support! 👋 To begin, please type the security code displayed above: X9J2P 🔡.",
+    "message": "Welcome to SafeBank Support! 👋 To begin, please type the security code displayed above: AJ3W1 🔡.",
     "type": "input"
   },
   "identification": {
@@ -12,11 +12,11 @@
     "type": "input"
   },
   "math_verification": {
-    "message": "For additional security 🛡️, please answer the following question: What is 6 + 7? 🔢",
+    "message": "For additional security 🛡️, please answer the following question: What is 12 - 5? 🔢",
     "type": "input"
   },
   "secret_question": {
-    "message": "Now please answer your secret question 🔒: What is the capital of France? 🇫🇷",
+    "message": "Now please answer your secret question 🔒: What is the capital of Japan? 🇯🇵",
     "type": "input"
   },
   "protocol_authorization": {

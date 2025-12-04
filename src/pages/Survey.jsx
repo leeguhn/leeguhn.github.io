@@ -73,34 +73,75 @@ const Survey = () => {
         const loggerData = JSON.parse(loggerDataStr);
         console.log('Parsed logger data:', loggerData);
         
+        // Helper function to convert to Korea Time (KST, UTC+9)
+        const toKoreaTime = (date) => {
+          const utcDate = new Date(date);
+          const kstDate = new Date(utcDate.getTime() + (9 * 60 * 60 * 1000));
+          return kstDate.toISOString().replace('Z', '+09:00');
+        };
+        
         // Create complete session data
         const sessionData = {
           participant_id: participantId,
           condition: loggerData.condition,
           condition_order: loggerData.conditionOrder,
           session_number: loggerData.sessionNumber,
-          session_start: new Date(Date.now() - (performance.now() - loggerData.sessionStart)).toISOString(),
+          session_start: toKoreaTime(Date.now() - (performance.now() - loggerData.sessionStart)),
           session_duration_ms: performance.now() - loggerData.sessionStart,
           user_responses: loggerData.userResponses,
           survey_responses: responses,
-          completed_at: new Date().toISOString()
+          completed_at: toKoreaTime(Date.now())
         };
 
-        console.log('Saving complete session data:', sessionData);
-        console.log('About to call addDoc with collection:', collection(db, 'experiment_sessions'));
+        console.log('Session data prepared:', sessionData);
         
-        // Save to Firebase with timeout
-        const savePromise = addDoc(collection(db, 'experiment_sessions'), sessionData);
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Firebase save timed out after 10 seconds')), 10000)
-        );
-        
-        console.log('Waiting for Firebase save...');
-        const docRef = await Promise.race([savePromise, timeoutPromise]);
-        console.log('Complete session saved successfully with ID:', docRef.id);
-        
-        // Clear logger from session storage
+        // Clear current logger from session storage
         window.sessionStorage.removeItem('currentLogger');
+        
+        if (conditionNumber === 1) {
+          // First session - store in session storage
+          console.log('Storing first session data for later...');
+          window.sessionStorage.setItem('firstSessionData', JSON.stringify(sessionData));
+        } else {
+          // Second session - combine both sessions and save to Firebase
+          console.log('Processing second session...');
+          const firstSessionStr = window.sessionStorage.getItem('firstSessionData');
+          
+          if (firstSessionStr) {
+            const firstSessionData = JSON.parse(firstSessionStr);
+            
+            // Create combined data package
+            const combinedData = {
+              participant_id: participantId,
+              condition_order: originalConditionOrder,
+              study_completed_at: toKoreaTime(Date.now()),
+              sessions: [
+                firstSessionData,
+                sessionData
+              ]
+            };
+            
+            console.log('Saving combined session data:', combinedData);
+            console.log('About to call addDoc with collection:', collection(db, 'experiment_sessions'));
+            
+            // Save to Firebase with timeout
+            const savePromise = addDoc(collection(db, 'experiment_sessions'), combinedData);
+            const timeoutPromise = new Promise((_, reject) => 
+              setTimeout(() => reject(new Error('Firebase save timed out after 10 seconds')), 10000)
+            );
+            
+            console.log('Waiting for Firebase save...');
+            const docRef = await Promise.race([savePromise, timeoutPromise]);
+            console.log('Complete study data saved successfully with ID:', docRef.id);
+            
+            // Clear stored first session data
+            window.sessionStorage.removeItem('firstSessionData');
+          } else {
+            console.error('First session data not found in storage!');
+            alert('Error: First session data is missing. Please contact support.');
+            return;
+          }
+        }
       } else {
         console.warn('No logger data found in session storage - skipping save');
       }
@@ -120,12 +161,12 @@ const Survey = () => {
     if (conditionNumber < totalConditions) {
       // Move to next condition (start_from is zero-based index)
       const nextStart = conditionNumber; // conditionNumber is 1-based, so using it starts at next index
-      const nextUrl = `/?participant_id=${participantId}&condition_order=${originalConditionOrder}&start_from=${nextStart}`;
+      const nextUrl = `/experiment?participant_id=${participantId}&condition_order=${originalConditionOrder}&start_from=${nextStart}`;
       console.log('Navigating to next condition:', nextUrl);
       navigate(nextUrl, { replace: true });
     } else {
-      console.log('All conditions complete, going home');
-      navigate('/', { replace: true });
+      console.log('All conditions complete, thank you!');
+      navigate('/complete', { replace: true });
     }
   };
 

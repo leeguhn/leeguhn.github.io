@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './InputBox.css';
 
-const InputBox = ({ onSubmit, logger, currentState, inputType = 'text', expectedAnswer = null, inputAvailableTime, disabled = false }) => {
+const InputBox = ({ onSubmit, logger, currentState, inputType = 'text', expectedAnswer = null, inputAvailableTime, disabled = false, condition = 'none' }) => {
   const [value, setValue] = useState('');
   const [hasTyped, setHasTyped] = useState(false);
   const [error, setError] = useState('');
@@ -53,7 +53,7 @@ const InputBox = ({ onSubmit, logger, currentState, inputType = 'text', expected
     // Define validation rules for specific states
     const validations = {
       'greeting': { 
-        expected: ['X9J2P', 'x9j2p'],
+        expected: condition === 'emoji' ? ['AJ3W1', 'aj3w1'] : ['X9J2P', 'x9j2p'],
         errorMessage: 'Incorrect security code. Please try again.'
       },
       'welcome': { 
@@ -65,11 +65,11 @@ const InputBox = ({ onSubmit, logger, currentState, inputType = 'text', expected
         errorMessage: 'Please enter exactly 4 digits.'
       },
       'math_verification': {
-        expected: ['13'],
+        expected: condition === 'emoji' ? ['7'] : ['13'],
         errorMessage: 'Incorrect answer. Please try again.'
       },
       'secret_question': {
-        expected: ['Paris', 'paris', 'PARIS'],
+        expected: condition === 'emoji' ? ['Tokyo', 'tokyo', 'TOKYO'] : ['Paris', 'paris', 'PARIS'],
         errorMessage: 'Incorrect answer. Please try again.'
       },
       'protocol_authorization': {
@@ -140,6 +140,11 @@ const InputBox = ({ onSubmit, logger, currentState, inputType = 'text', expected
           return words.length >= 5 && !isOnlyNumbers && hasLetters;
         },
         errorMessage: 'Please provide a complete sentence describing your relationship and reason (at least 5 words).'
+      },
+      'amount_confirmation': {
+        // Allow integers and decimals (positive numbers)
+        validator: (val) => /^\d+(\.\d+)?$/.test(val) && parseFloat(val) > 0,
+        errorMessage: 'Please enter a valid amount (numbers only, decimals allowed).'
       }
     };
 
@@ -261,8 +266,8 @@ const InputBox = ({ onSubmit, logger, currentState, inputType = 'text', expected
         <input
           ref={inputRef}
           type={getInputType()}
-          step={currentState === 'amount' ? '0.01' : undefined}
-          min={currentState === 'amount' ? '0' : undefined}
+          step={currentState === 'amount_confirmation' ? '0.01' : undefined}
+          min={currentState === 'amount_confirmation' ? '0' : undefined}
           value={value}
           onChange={(e) => {
             setValue(e.target.value);

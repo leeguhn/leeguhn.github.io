@@ -7,13 +7,11 @@ import './Experiment.css';
 
 // Import condition files
 import conditionNone from '../data/condition_none.json';
-import conditionLow from '../data/condition_low.json';
-import conditionHigh from '../data/condition_high.json';
+import conditionEmoji from '../data/condition_emoji.json';
 
 const conditionMap = {
   'none': conditionNone,
-  'low': conditionLow,
-  'high': conditionHigh
+  'emoji': conditionEmoji
 };
 
 const Experiment = () => {
@@ -21,7 +19,14 @@ const Experiment = () => {
   const navigate = useNavigate();
   
   // Get participant info from URL
-  const participantId = searchParams.get('participant_id') || 'test_user';
+  const participantId = searchParams.get('participant_id');
+  
+  // Redirect to welcome if no participant ID
+  useEffect(() => {
+    if (!participantId) {
+      navigate('/', { replace: true });
+    }
+  }, [participantId, navigate]);
   
   // Randomize condition order if not provided (50/50 chance)
   const getConditionOrder = () => {
@@ -33,7 +38,7 @@ const Experiment = () => {
     if (storedOrder) return storedOrder;
     
     // Generate random order: 50% chance for each
-    const randomOrder = Math.random() < 0.5 ? 'none-low' : 'low-none';
+    const randomOrder = Math.random() < 0.5 ? 'none-emoji' : 'emoji-none';
     window.sessionStorage.setItem('condition_order', randomOrder);
     return randomOrder;
   };
@@ -182,6 +187,8 @@ const Experiment = () => {
     return <div className="loading">Loading experiment...</div>;
   }
 
+  const currentCondition = conditions[currentConditionIndex];
+
   return (
     <div className="experiment-container">
       <ChatWindow
@@ -191,6 +198,7 @@ const Experiment = () => {
         logger={logger}
         currentState={stateMachine.getCurrentState()}
         showInput={showInput}
+        condition={currentCondition}
       />
     </div>
   );

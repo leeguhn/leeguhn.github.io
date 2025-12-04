@@ -2,6 +2,13 @@
 import { collection, addDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 
+// Helper function to convert to Korea Time (KST, UTC+9)
+const toKoreaTime = (date) => {
+  const utcDate = new Date(date);
+  const kstDate = new Date(utcDate.getTime() + (9 * 60 * 60 * 1000));
+  return kstDate.toISOString().replace('Z', '+09:00');
+};
+
 export class Logger {
   constructor(participantId, condition, conditionOrder, sessionNumber) {
     this.participantId = participantId;
@@ -62,11 +69,11 @@ export class Logger {
       condition: this.condition,
       condition_order: this.conditionOrder,
       session_number: this.sessionNumber,
-      session_start: new Date(Date.now() - (performance.now() - this.sessionStart)).toISOString(),
+      session_start: toKoreaTime(Date.now() - (performance.now() - this.sessionStart)),
       session_duration_ms: performance.now() - this.sessionStart,
       user_responses: this.userResponses,
       survey_responses: surveyResponses,
-      completed_at: new Date().toISOString()
+      completed_at: toKoreaTime(Date.now())
     };
 
     try {

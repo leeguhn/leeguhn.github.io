@@ -3,7 +3,7 @@ import MessageBubble from './MessageBubble';
 import InputBox from './InputBox';
 import './ChatWindow.css';
 
-const ChatWindow = ({ messages, currentMessage, onAmountSubmit, logger, currentState, showInput }) => {
+const ChatWindow = ({ messages, currentMessage, onAmountSubmit, logger, currentState, showInput, condition }) => {
   const messagesEndRef = useRef(null);
   const [isInputEnabled, setIsInputEnabled] = useState(false);
   const inputAvailableTimeRef = useRef(null);
@@ -66,6 +66,7 @@ const ChatWindow = ({ messages, currentMessage, onAmountSubmit, logger, currentS
         currentState={currentState}
         inputAvailableTime={inputAvailableTimeRef.current}
         disabled={!isInputEnabled}
+        condition={condition}
       />
     </div>
   );
