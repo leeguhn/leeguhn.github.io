@@ -21,8 +21,8 @@ const Survey = () => {
     appropriate_formality: 4,
     appropriate_context: 4,
     
-    // Transaction status
-    transaction_complete: ''
+    // Transaction confidence (1-7 scale)
+    transaction_confidence: 4
   });
 
   const handleChange = (field, value) => {
@@ -220,45 +220,8 @@ const Survey = () => {
           </section>
 
           <section className="survey-section">
-            <h2>Transaction Understanding</h2>
-            <div className="survey-question">
-              <label className="question-label">
-                Did the chatbot successfully complete the transaction?
-              </label>
-              <div className="radio-group">
-                <label className="radio-option">
-                  <input
-                    type="radio"
-                    name="transaction_complete"
-                    value="yes"
-                    checked={responses.transaction_complete === 'yes'}
-                    onChange={(e) => handleChange('transaction_complete', e.target.value)}
-                    required
-                  />
-                  <span>Yes</span>
-                </label>
-                <label className="radio-option">
-                  <input
-                    type="radio"
-                    name="transaction_complete"
-                    value="no"
-                    checked={responses.transaction_complete === 'no'}
-                    onChange={(e) => handleChange('transaction_complete', e.target.value)}
-                  />
-                  <span>No</span>
-                </label>
-                <label className="radio-option">
-                  <input
-                    type="radio"
-                    name="transaction_complete"
-                    value="unsure"
-                    checked={responses.transaction_complete === 'unsure'}
-                    onChange={(e) => handleChange('transaction_complete', e.target.value)}
-                  />
-                  <span>Unsure</span>
-                </label>
-              </div>
-            </div>
+            <h2>Transaction Confidence</h2>
+            {renderScale('transaction_confidence', 'How confident did you feel about the transaction process?', 'Not confident at all', 'Very confident')}
           </section>
 
           <button type="submit" className="submit-survey-button">
