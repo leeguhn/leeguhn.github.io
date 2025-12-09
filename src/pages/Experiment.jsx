@@ -28,7 +28,7 @@ const Experiment = () => {
     }
   }, [participantId, navigate]);
   
-  // Randomize condition order if not provided (50/50 chance)
+  // Randomize condition order if not provided (75% emoji-none, 25% none-emoji)
   const getConditionOrder = () => {
     const urlOrder = searchParams.get('condition_order');
     if (urlOrder) return urlOrder;
@@ -37,8 +37,8 @@ const Experiment = () => {
     const storedOrder = window.sessionStorage.getItem('condition_order');
     if (storedOrder) return storedOrder;
     
-    // Generate random order: 50% chance for each
-    const randomOrder = Math.random() < 0.5 ? 'none-emoji' : 'emoji-none';
+    // Generate random order: 75% emoji-none, 25% none-emoji
+    const randomOrder = Math.random() < 0.75 ? 'emoji-none' : 'none-emoji';
     window.sessionStorage.setItem('condition_order', randomOrder);
     return randomOrder;
   };
