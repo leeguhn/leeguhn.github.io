@@ -9,8 +9,8 @@ const Welcome = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (name.trim()) {
-      // Generate random condition order (50/50)
-      const randomOrder = Math.random() < 0.5 ? 'none-emoji' : 'emoji-none';
+      // Always start with emoji first
+      const randomOrder = 'emoji-none';
       window.sessionStorage.setItem('condition_order', randomOrder);
       
       // Navigate to experiment with participant name
