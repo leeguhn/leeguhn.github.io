@@ -112,10 +112,26 @@
     }
 
     .settings-title {
+      align-items: center;
       color: var(--text);
+      display: flex;
       font-size: 12px;
       font-weight: 700;
+      justify-content: space-between;
       line-height: 1;
+    }
+
+    .settings-reset {
+      align-items: center;
+      aspect-ratio: 1;
+      border: 1px solid var(--line);
+      display: inline-grid;
+      font-size: 15px;
+      height: 24px;
+      justify-content: center;
+      min-height: 0;
+      padding: 0;
+      width: 24px;
     }
 
     .settings label {
@@ -274,12 +290,18 @@
     </div>
     <div class="settings" aria-label="Frequency settings">
       <div class="settings-group">
-        <div class="settings-title">vOICe Range</div>
+        <div class="settings-title">
+          <span>vOICe Range</span>
+          <button id="resetVoiceRange" class="settings-reset" type="button" aria-label="Reset vOICe range to default" title="Reset vOICe range">↩</button>
+        </div>
         <label for="voiceLowFrequency"><span>Low Hz</span><input id="voiceLowFrequency" type="number" min="80" max="12000" step="10"></label>
         <label for="voiceHighFrequency"><span>High Hz</span><input id="voiceHighFrequency" type="number" min="100" max="16000" step="10"></label>
       </div>
       <div class="settings-group">
-        <div class="settings-title">HRTF Range</div>
+        <div class="settings-title">
+          <span>HRTF Range</span>
+          <button id="resetHrtfRange" class="settings-reset" type="button" aria-label="Reset HRTF range to default" title="Reset HRTF range">↩</button>
+        </div>
         <label for="hrtfLowFrequency"><span>Low Hz</span><input id="hrtfLowFrequency" type="number" min="80" max="12000" step="10"></label>
         <label for="hrtfHighFrequency"><span>High Hz</span><input id="hrtfHighFrequency" type="number" min="100" max="16000" step="10"></label>
       </div>
@@ -965,6 +987,23 @@
       });
     }
 
+    function resetFrequencyRange(kind) {
+      if (kind === "voice") {
+        soundSettings.voiceLowFrequencyHz = voiceAlgorithmConfig.lowFrequencyHz;
+        soundSettings.voiceHighFrequencyHz = voiceAlgorithmConfig.highFrequencyHz;
+      } else if (kind === "hrtf") {
+        soundSettings.hrtfLowFrequencyHz = HRTF_FREQUENCY_DEFAULTS.lowFrequencyHz;
+        soundSettings.hrtfHighFrequencyHz = HRTF_FREQUENCY_DEFAULTS.highFrequencyHz;
+      }
+      syncFrequencyControls();
+      appendLog("frequency_range_reset", {
+        kind,
+        voice: { ...voiceFrequencyRange() },
+        hrtf: { ...hrtfFrequencyRange() }
+      });
+    }
+    window.resetFrequencyRange = resetFrequencyRange;
+
     function setMode(mode) {
       sim.mode = mode;
       document.getElementById("modeBaseline").setAttribute("aria-pressed", String(mode === "baseline"));
@@ -1216,6 +1255,8 @@
       document.getElementById(id).addEventListener("input", updateFrequencyRangeFromInputs);
       document.getElementById(id).addEventListener("change", updateFrequencyRangeFromInputs);
     }
+    document.getElementById("resetVoiceRange").addEventListener("click", () => resetFrequencyRange("voice"));
+    document.getElementById("resetHrtfRange").addEventListener("click", () => resetFrequencyRange("hrtf"));
     document.getElementById("toggleLog").addEventListener("click", () => {
       logExpanded = !logExpanded;
       const button = document.getElementById("toggleLog");
