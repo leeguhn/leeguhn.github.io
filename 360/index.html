@@ -97,6 +97,41 @@
       margin: 16px 0;
     }
 
+    .settings {
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      display: grid;
+      gap: 8px;
+      margin: 14px 0;
+      padding: 12px 0;
+    }
+
+    .settings label {
+      align-items: center;
+      color: var(--muted);
+      display: grid;
+      font-size: 12px;
+      gap: 8px;
+      grid-template-columns: 72px 1fr;
+    }
+
+    input[type="number"] {
+      appearance: textfield;
+      border: 1px solid var(--line);
+      border-radius: 0;
+      color: var(--text);
+      font: inherit;
+      font-size: 13px;
+      height: 30px;
+      padding: 4px 8px;
+      width: 100%;
+    }
+
+    input[type="number"]:focus-visible {
+      outline: 2px solid #111111;
+      outline-offset: 2px;
+    }
+
     button {
       appearance: none;
       border: 1px solid var(--line);
@@ -225,6 +260,10 @@
       <button id="resetScene">Reset Scene</button>
       <button id="exportLog">Export Log JSON</button>
     </div>
+    <div class="settings" aria-label="Frequency settings">
+      <label for="lowFrequency"><span>Low Hz</span><input id="lowFrequency" type="number" min="80" max="12000" step="10"></label>
+      <label for="highFrequency"><span>High Hz</span><input id="highFrequency" type="number" min="100" max="16000" step="10"></label>
+    </div>
     <div id="telemetry" class="readout"></div>
     <button id="toggleLog" class="log-toggle" aria-expanded="false" aria-controls="eventLog">Show Event Log</button>
     <div id="eventLog" class="log"></div>
@@ -258,6 +297,11 @@
     const povCtx = povCanvas.getContext("2d");
     const INITIAL_LISTENER = Object.freeze({ x: 0, y: 0, z: 0, heading: 0 });
     const INITIAL_OBSTACLE = Object.freeze({ id: "A", x: 0, z: 4 });
+    const soundSettings = {
+      lowFrequencyHz: voiceAlgorithmConfig.lowFrequencyHz,
+      highFrequencyHz: voiceAlgorithmConfig.highFrequencyHz
+    };
+    window.soundSettings = soundSettings;
 
     const sim = {
       mode: "baseline",
@@ -403,6 +447,22 @@
       return clamp(0.18 / Math.max(0.08, distance), 0.035, 0.65);
     }
     window.hrtfDistanceGain = hrtfDistanceGain;
+
+    function frequencyRange() {
+      const low = clamp(Number(soundSettings.lowFrequencyHz) || voiceAlgorithmConfig.lowFrequencyHz, 80, 12000);
+      const high = clamp(Number(soundSettings.highFrequencyHz) || voiceAlgorithmConfig.highFrequencyHz, low + 20, 16000);
+      return { low, high };
+    }
+    window.frequencyRange = frequencyRange;
+
+    function hrtfFrequencyForMetrics(metrics) {
+      const { low, high } = frequencyRange();
+      const distanceTone = 1 - clamp(metrics.distance / WORLD_RADIUS_M, 0, 1);
+      const frontTone = (Math.cos(metrics.relativeAzimuth) + 1) / 2;
+      const tone = clamp(distanceTone * 0.72 + frontTone * 0.28, 0, 1);
+      return low + (high - low) * tone;
+    }
+    window.hrtfFrequencyForMetrics = hrtfFrequencyForMetrics;
 
     function hrtfDebugVector(obstacle) {
       const forward = listenerHrtfForward();
@@ -616,7 +676,7 @@
       const hrtf = audio.ctx.createPanner();
 
       osc.type = "sine";
-      osc.frequency.value = 330 + obstacle.id.charCodeAt(0) * 3;
+      osc.frequency.value = frequencyRange().low;
       gain.gain.value = 0.0001;
 
       hrtf.panningModel = "HRTF";
@@ -640,8 +700,9 @@
 
     function voiceFrequencyForRow(row) {
       const c = voiceAlgorithmConfig;
+      const { low, high } = frequencyRange();
       const t = clamp(row, 0, c.rows - 1) / (c.rows - 1);
-      return c.highFrequencyHz * Math.pow(c.lowFrequencyHz / c.highFrequencyHz, t);
+      return high * Math.pow(low / high, t);
     }
     window.voiceFrequencyForRow = voiceFrequencyForRow;
 
@@ -830,6 +891,23 @@
       }
     }
 
+    function syncFrequencyControls() {
+      document.getElementById("lowFrequency").value = String(soundSettings.lowFrequencyHz);
+      document.getElementById("highFrequency").value = String(soundSettings.highFrequencyHz);
+    }
+
+    function updateFrequencyRangeFromInputs() {
+      const lowInput = document.getElementById("lowFrequency");
+      const highInput = document.getElementById("highFrequency");
+      let low = clamp(Number(lowInput.value) || voiceAlgorithmConfig.lowFrequencyHz, 80, 12000);
+      let high = clamp(Number(highInput.value) || voiceAlgorithmConfig.highFrequencyHz, 100, 16000);
+      if (high <= low) high = Math.min(16000, low + 20);
+      soundSettings.lowFrequencyHz = Math.round(low);
+      soundSettings.highFrequencyHz = Math.round(high);
+      syncFrequencyControls();
+      appendLog("frequency_range_changed", { ...frequencyRange() });
+    }
+
     function setMode(mode) {
       sim.mode = mode;
       document.getElementById("modeBaseline").setAttribute("aria-pressed", String(mode === "baseline"));
@@ -922,7 +1000,7 @@
         const sourcePosition = worldToHrtfPosition(obstacle.x, 0, obstacle.z);
         const distanceGain = hrtfDistanceGain(m.distance);
         setAudioParam(voice.gain.gain, distanceGain, now);
-        setAudioParam(voice.osc.frequency, 260 + (1 - clamp(m.distance / WORLD_RADIUS_M, 0, 1)) * 940, now);
+        setAudioParam(voice.osc.frequency, hrtfFrequencyForMetrics(m), now);
 
         if ("positionX" in voice.hrtf) {
           setAudioParam(voice.hrtf.positionX, sourcePosition.x, now);
@@ -970,6 +1048,7 @@
       const lines = [
         `mode: ${sim.mode}`,
         `audio: ${sim.audioStarted ? "started" : "locked"}`,
+        `freq range: ${frequencyRange().low}-${frequencyRange().high}Hz`,
         `listener: x=${sim.listener.x.toFixed(2)} z=${sim.listener.z.toFixed(2)} heading=${(sim.listener.heading * 180 / Math.PI).toFixed(1)}deg`,
         `pov fov: ${POV_FOV_DEG}deg`,
         sim.mode === "baseline"
@@ -985,7 +1064,8 @@
           `${obstacle.id}: az=${(m.relativeAzimuth * 180 / Math.PI).toFixed(1)}deg ` +
           `el=${(m.elevation * 180 / Math.PI).toFixed(1)}deg ` +
           `d=${m.distance.toFixed(2)}m rv=${m.radialVelocity.toFixed(3)}m/frame pan=${m.pan.toFixed(2)}`,
-          `pov=${inPov ? "visible" : "hidden"} drag=obstacle-to-move`
+          `front/back=${Math.cos(m.relativeAzimuth) >= 0 ? "front" : "back"} ` +
+          `tone=${Math.round(hrtfFrequencyForMetrics(m))}Hz pov=${inPov ? "visible" : "hidden"} drag=obstacle-to-move`
         );
       }
 
@@ -1074,6 +1154,8 @@
     document.getElementById("modeBaseline").addEventListener("click", () => setMode("baseline"));
     document.getElementById("modeHrtf").addEventListener("click", () => setMode("hrtf"));
     document.getElementById("resetScene").addEventListener("click", restoreInitialScene);
+    document.getElementById("lowFrequency").addEventListener("change", updateFrequencyRangeFromInputs);
+    document.getElementById("highFrequency").addEventListener("change", updateFrequencyRangeFromInputs);
     document.getElementById("toggleLog").addEventListener("click", () => {
       logExpanded = !logExpanded;
       const button = document.getElementById("toggleLog");
@@ -1096,6 +1178,7 @@
     });
 
     restoreInitialScene();
+    syncFrequencyControls();
     document.getElementById("eventLog").hidden = true;
     requestAnimationFrame(frame);
   </script>
