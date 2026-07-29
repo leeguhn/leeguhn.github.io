@@ -48,6 +48,9 @@ jobs:
       - name: Add static 360 prototype
         run: cp -R 360 emoji/dist/360
 
+      - name: Add static Kirigami Engine Lab
+        run: cp -R kirigami emoji/dist/kirigami
+
       - name: Setup Pages
         uses: actions/configure-pages@v4
       
