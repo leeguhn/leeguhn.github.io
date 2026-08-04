@@ -1,0 +1,1287 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>vOICe vs. 360 HRTF</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --panel-2: #f4f4f4;
+      --text: #111111;
+      --muted: #5c5c5c;
+      --line: #222222;
+      --soft-line: #d8d8d8;
+      --accent: #111111;
+      --warn: #333333;
+      --danger: #111111;
+      --font-ui: Inter, "Helvetica Neue", Helvetica, Arial, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: var(--font-ui);
+      background: var(--bg);
+      color: var(--text);
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 360px;
+    }
+
+    main {
+      display: grid;
+      place-items: center;
+      min-height: 100vh;
+      padding: 24px;
+      overflow: hidden;
+    }
+
+    .stage {
+      position: relative;
+      width: min(100%, 720px, calc(100vh - 48px));
+      aspect-ratio: 1;
+    }
+
+    canvas {
+      border: 1px solid var(--line);
+      background: #ffffff;
+    }
+
+    #scene {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    #pov {
+      position: absolute;
+      left: 18px;
+      bottom: 18px;
+      width: 240px;
+      height: 135px;
+      background: #ffffff;
+    }
+
+    aside {
+      border-left: 1px solid var(--line);
+      background: var(--panel);
+      padding: 20px 18px;
+      overflow: auto;
+    }
+
+    h1 {
+      margin: 0 0 14px;
+      font-size: 20px;
+      line-height: 1.15;
+      letter-spacing: 0;
+      font-weight: 700;
+    }
+
+    p {
+      margin: 0 0 14px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .controls {
+      display: grid;
+      gap: 7px;
+      margin: 16px 0;
+    }
+
+    .settings {
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      display: grid;
+      gap: 12px;
+      margin: 14px 0;
+      padding: 12px 0;
+    }
+
+    .settings-group {
+      display: grid;
+      gap: 8px;
+    }
+
+    .settings-title {
+      align-items: center;
+      color: var(--text);
+      display: flex;
+      font-size: 12px;
+      font-weight: 700;
+      justify-content: space-between;
+      line-height: 1;
+    }
+
+    .settings-reset {
+      align-items: center;
+      aspect-ratio: 1;
+      border: 1px solid var(--line);
+      display: inline-grid;
+      font-size: 15px;
+      height: 24px;
+      justify-content: center;
+      min-height: 0;
+      padding: 0;
+      width: 24px;
+    }
+
+    .settings label {
+      align-items: center;
+      color: var(--muted);
+      display: grid;
+      font-size: 12px;
+      gap: 8px;
+      grid-template-columns: 72px 1fr;
+    }
+
+    input[type="number"] {
+      appearance: textfield;
+      border: 1px solid var(--line);
+      border-radius: 0;
+      color: var(--text);
+      font: inherit;
+      font-size: 13px;
+      height: 30px;
+      padding: 4px 8px;
+      width: 100%;
+    }
+
+    input[type="number"]:focus-visible {
+      outline: 2px solid #111111;
+      outline-offset: 2px;
+    }
+
+    button {
+      appearance: none;
+      border: 1px solid var(--line);
+      background: #ffffff;
+      color: var(--text);
+      border-radius: 0;
+      min-height: 34px;
+      padding: 8px 11px;
+      font: inherit;
+      font-size: 13px;
+      line-height: 1;
+      letter-spacing: 0;
+      cursor: pointer;
+      box-shadow: inset 0 0 0 1px #ffffff;
+    }
+
+    button:hover {
+      border-color: #000000;
+      background: #f7f7f7;
+    }
+
+    button:focus-visible {
+      outline: 2px solid #111111;
+      outline-offset: 2px;
+    }
+
+    button[aria-pressed="true"] {
+      border-color: var(--accent);
+      color: #ffffff;
+      background: #111111;
+      box-shadow: none;
+    }
+
+    #startAudio[data-audio-state="stopped"] {
+      border-color: #1f7a3a;
+      color: #ffffff;
+      background: #21843f;
+      box-shadow: none;
+    }
+
+    #startAudio[data-audio-state="playing"] {
+      border-color: #9d1f1f;
+      color: #ffffff;
+      background: #b82424;
+      box-shadow: none;
+    }
+
+    .readout,
+    .log {
+      border-top: 1px solid var(--line);
+      padding-top: 14px;
+      margin-top: 14px;
+      font: 12px/1.45 var(--font-mono);
+      color: var(--muted);
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .log-toggle {
+      width: 100%;
+      margin-top: 14px;
+    }
+
+    .log[hidden] {
+      display: none;
+    }
+
+    .log {
+      max-height: 220px;
+      overflow: auto;
+    }
+
+    .hint {
+      color: var(--warn);
+    }
+
+    @media (max-width: 880px) {
+      body {
+        grid-template-columns: 1fr;
+      }
+
+      main {
+        min-height: auto;
+      }
+
+      aside {
+        border-left: 0;
+        border-top: 1px solid var(--line);
+      }
+
+      canvas {
+        width: calc(100vw - 32px);
+        height: calc(100vw - 32px);
+      }
+
+      .stage {
+        width: calc(100vw - 32px);
+        max-height: none;
+      }
+
+      #pov {
+        left: 10px;
+        bottom: 10px;
+        width: 42%;
+        height: auto;
+        aspect-ratio: 16 / 9;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="stage">
+      <canvas id="scene" width="900" height="900" aria-label="Top-down 360 obstacle audio simulation"></canvas>
+      <canvas id="pov" width="320" height="180" aria-label="First-person orientation preview"></canvas>
+    </div>
+  </main>
+  <aside>
+    <h1>vOICe vs. 360 HRTF</h1>
+    <p class="hint">Use headphones. Click Start Audio before testing sound.</p>
+    <p>WASD moves, Q/E rotates, drag the obstacle to reposition it. Drag empty radar space to turn.</p>
+    <div class="controls">
+      <button id="startAudio" data-audio-state="stopped">Start Audio</button>
+      <button id="modeBaseline" aria-pressed="true">the vOICe</button>
+      <button id="modeHrtf" aria-pressed="false">HRTF</button>
+      <button id="resetScene">Reset Scene</button>
+      <button id="exportLog">Export Log JSON</button>
+    </div>
+    <div class="settings" aria-label="Frequency settings">
+      <div class="settings-group">
+        <div class="settings-title">
+          <span>vOICe Range</span>
+          <button id="resetVoiceRange" class="settings-reset" type="button" aria-label="Reset vOICe range to default" title="Reset vOICe range">↩</button>
+        </div>
+        <label for="voiceLowFrequency"><span>Low Hz</span><input id="voiceLowFrequency" type="number" min="80" max="12000" step="10"></label>
+        <label for="voiceHighFrequency"><span>High Hz</span><input id="voiceHighFrequency" type="number" min="100" max="16000" step="10"></label>
+      </div>
+      <div class="settings-group">
+        <div class="settings-title">
+          <span>HRTF Range</span>
+          <button id="resetHrtfRange" class="settings-reset" type="button" aria-label="Reset HRTF range to default" title="Reset HRTF range">↩</button>
+        </div>
+        <label for="hrtfLowFrequency"><span>Low Hz</span><input id="hrtfLowFrequency" type="number" min="80" max="12000" step="10"></label>
+        <label for="hrtfHighFrequency"><span>High Hz</span><input id="hrtfHighFrequency" type="number" min="100" max="16000" step="10"></label>
+      </div>
+    </div>
+    <div id="telemetry" class="readout"></div>
+    <button id="toggleLog" class="log-toggle" aria-expanded="false" aria-controls="eventLog">Show Event Log</button>
+    <div id="eventLog" class="log"></div>
+  </aside>
+
+  <script>
+    const WORLD_RADIUS_M = 8;
+    const POV_FOV_DEG = 60;
+    const POV_FOV_RAD = POV_FOV_DEG * Math.PI / 180;
+    const voiceAlgorithmConfig = Object.freeze({
+      columns: 64,
+      rows: 64,
+      grayLevels: 16,
+      sampleRate: 44100,
+      sweepDuration: 1.05,
+      lowFrequencyHz: 500,
+      highFrequencyHz: 5000,
+      speedOfSoundMps: 340,
+      headSizeM: 0.2,
+      useExponentialFrequencies: true,
+      useStereoDelay: true,
+      useRelativeFade: true,
+      useDiffraction: true,
+      useBSplineWindow: true,
+      useStartupClick: false
+    });
+    window.voiceAlgorithmConfig = voiceAlgorithmConfig;
+    const canvas = document.getElementById("scene");
+    const ctx = canvas.getContext("2d");
+    const povCanvas = document.getElementById("pov");
+    const povCtx = povCanvas.getContext("2d");
+    const INITIAL_LISTENER = Object.freeze({ x: 0, y: 0, z: 0, heading: 0 });
+    const INITIAL_OBSTACLE = Object.freeze({ id: "A", x: 0, z: 4 });
+    const HRTF_FREQUENCY_DEFAULTS = Object.freeze({ lowFrequencyHz: 260, highFrequencyHz: 1200 });
+    const soundSettings = {
+      voiceLowFrequencyHz: voiceAlgorithmConfig.lowFrequencyHz,
+      voiceHighFrequencyHz: voiceAlgorithmConfig.highFrequencyHz,
+      hrtfLowFrequencyHz: HRTF_FREQUENCY_DEFAULTS.lowFrequencyHz,
+      hrtfHighFrequencyHz: HRTF_FREQUENCY_DEFAULTS.highFrequencyHz
+    };
+    window.soundSettings = soundSettings;
+
+    const sim = {
+      mode: "baseline",
+      audioStarted: false,
+      lastTime: performance.now(),
+      listener: { ...INITIAL_LISTENER },
+      obstacles: [],
+      keys: new Set(),
+      drag: { active: false, type: null, x: 0 },
+      log: []
+    };
+    window.sim = sim;
+    let logExpanded = false;
+
+    const audio = {
+      ctx: null,
+      master: null,
+      hrtfVoices: new Map(),
+      baseline: {
+        sweepDuration: voiceAlgorithmConfig.sweepDuration,
+        pauseDuration: 0.25,
+        columnWindow: 1 / voiceAlgorithmConfig.columns,
+        previousPhase: 0,
+        sweepIndex: -1,
+        activeSource: null
+      }
+    };
+
+    let lastSampleTime = 0;
+
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
+
+    function wrapAngleRad(angle) {
+      while (angle > Math.PI) angle -= Math.PI * 2;
+      while (angle < -Math.PI) angle += Math.PI * 2;
+      return angle;
+    }
+
+    function appendLog(type, data) {
+      sim.log.push({
+        t: Number((performance.now() / 1000).toFixed(3)),
+        type,
+        mode: sim.mode,
+        ...data
+      });
+      if (sim.log.length > 400) sim.log.shift();
+    }
+
+    function listenerForward() {
+      return {
+        x: Math.sin(sim.listener.heading),
+        z: Math.cos(sim.listener.heading)
+      };
+    }
+
+    function worldToHrtfPosition(x, y, z) {
+      return { x, y, z: -z };
+    }
+
+    function listenerHrtfForward() {
+      const forward = listenerForward();
+      return worldToHrtfPosition(forward.x, 0, forward.z);
+    }
+
+    function makeManualObstacle() {
+      return {
+        ...INITIAL_OBSTACLE,
+        prevDistance: 0,
+        dotRadius: 0.16,
+        wasNear: false
+      };
+    }
+
+    function restoreInitialScene() {
+      sim.listener = { ...INITIAL_LISTENER };
+      sim.obstacles = [makeManualObstacle()];
+      sim.drag = { active: false, type: null, x: 0 };
+
+      for (const obstacle of sim.obstacles) {
+        const dx = obstacle.x - sim.listener.x;
+        const dz = obstacle.z - sim.listener.z;
+        obstacle.prevDistance = Math.hypot(dx, dz);
+      }
+
+      appendLog("reset", {
+        obstacleCount: sim.obstacles.length,
+        listener: { ...sim.listener },
+        obstacle: { id: sim.obstacles[0].id, x: sim.obstacles[0].x, z: sim.obstacles[0].z }
+      });
+    }
+
+    function canvasToWorld(clientX, clientY) {
+      const rect = canvas.getBoundingClientRect();
+      const canvasX = (clientX - rect.left) * (canvas.width / rect.width);
+      const canvasY = (clientY - rect.top) * (canvas.height / rect.height);
+      const scale = canvas.width / (WORLD_RADIUS_M * 2);
+      return {
+        x: clamp((canvasX - canvas.width / 2) / scale, -WORLD_RADIUS_M + 0.25, WORLD_RADIUS_M - 0.25),
+        z: clamp((canvas.height / 2 - canvasY) / scale, -WORLD_RADIUS_M + 0.25, WORLD_RADIUS_M - 0.25),
+        canvasX,
+        canvasY
+      };
+    }
+
+    function worldToCanvas(x, z) {
+      const scale = canvas.width / (WORLD_RADIUS_M * 2);
+      return {
+        x: canvas.width / 2 + x * scale,
+        y: canvas.height / 2 - z * scale
+      };
+    }
+
+    function computeObstacleMetrics(obstacle) {
+      const dx = obstacle.x - sim.listener.x;
+      const dz = obstacle.z - sim.listener.z;
+      const distance = Math.hypot(dx, dz);
+      const worldAngle = Math.atan2(dx, dz);
+      const relativeAzimuth = wrapAngleRad(worldAngle - sim.listener.heading);
+      const elevation = 0;
+      const radialVelocity = obstacle.prevDistance - distance;
+      const pan = clamp(relativeAzimuth / (Math.PI / 2), -1, 1);
+      return { dx, dz, distance, worldAngle, relativeAzimuth, elevation, radialVelocity, pan };
+    }
+    window.computeObstacleMetrics = computeObstacleMetrics;
+
+    function radarObstacleRadius() {
+      return 12;
+    }
+    window.radarObstacleRadius = radarObstacleRadius;
+
+    function povObstacleRadius(distance) {
+      return clamp(34 / Math.max(0.35, distance), 5, 52);
+    }
+    window.povObstacleRadius = povObstacleRadius;
+
+    function voiceImageRadius(distance) {
+      return clamp(Math.round(7 / Math.max(0.35, distance)), 1, 11);
+    }
+    window.voiceImageRadius = voiceImageRadius;
+
+    function hrtfDistanceGain(distance) {
+      return clamp(0.18 / Math.max(0.08, distance), 0.035, 0.65);
+    }
+    window.hrtfDistanceGain = hrtfDistanceGain;
+
+    function coerceFrequencyRange(lowValue, highValue, fallbackLow, fallbackHigh) {
+      const low = clamp(Number(lowValue) || fallbackLow, 80, 12000);
+      const high = clamp(Number(highValue) || fallbackHigh, low + 20, 16000);
+      return { low, high };
+    }
+
+    function voiceFrequencyRange() {
+      return coerceFrequencyRange(
+        soundSettings.voiceLowFrequencyHz,
+        soundSettings.voiceHighFrequencyHz,
+        voiceAlgorithmConfig.lowFrequencyHz,
+        voiceAlgorithmConfig.highFrequencyHz
+      );
+    }
+    window.voiceFrequencyRange = voiceFrequencyRange;
+
+    function hrtfFrequencyRange() {
+      return coerceFrequencyRange(
+        soundSettings.hrtfLowFrequencyHz,
+        soundSettings.hrtfHighFrequencyHz,
+        HRTF_FREQUENCY_DEFAULTS.lowFrequencyHz,
+        HRTF_FREQUENCY_DEFAULTS.highFrequencyHz
+      );
+    }
+    window.hrtfFrequencyRange = hrtfFrequencyRange;
+
+    function hrtfFrequencyForMetrics(metrics) {
+      const { low, high } = hrtfFrequencyRange();
+      const distanceTone = 1 - clamp(metrics.distance / WORLD_RADIUS_M, 0, 1);
+      const frontTone = (Math.cos(metrics.relativeAzimuth) + 1) / 2;
+      const tone = clamp(distanceTone * 0.72 + frontTone * 0.28, 0, 1);
+      return low + (high - low) * tone;
+    }
+    window.hrtfFrequencyForMetrics = hrtfFrequencyForMetrics;
+
+    function hrtfDebugVector(obstacle) {
+      const forward = listenerHrtfForward();
+      return {
+        listenerPosition: worldToHrtfPosition(sim.listener.x, 0, sim.listener.z),
+        listenerForward: { x: forward.x, y: 0, z: forward.z },
+        sourcePosition: worldToHrtfPosition(obstacle.x, 0, obstacle.z),
+        relativeAzimuthRad: computeObstacleMetrics(obstacle).relativeAzimuth
+      };
+    }
+    window.hrtfDebugVector = hrtfDebugVector;
+
+    function getSweepPhase() {
+      if (!audio.ctx || !sim.audioStarted) return null;
+      const cycle = audio.baseline.sweepDuration + audio.baseline.pauseDuration;
+      const cyclePosition = audio.ctx.currentTime % cycle;
+      if (cyclePosition > audio.baseline.sweepDuration) return null;
+      return cyclePosition / audio.baseline.sweepDuration;
+    }
+
+    function obstacleToPovImage(obstacle) {
+      const m = computeObstacleMetrics(obstacle);
+      const halfFov = POV_FOV_RAD / 2;
+      if (Math.abs(m.relativeAzimuth) > halfFov) {
+        return { visible: false, xNorm: 0, yNorm: 0.5, metrics: m };
+      }
+
+      const xNorm = (m.relativeAzimuth + halfFov) / POV_FOV_RAD;
+      const yNorm = clamp(0.62 - (m.distance - 3) * 0.035, 0.08, 0.92);
+      return { visible: true, xNorm, yNorm, metrics: m };
+    }
+
+    function updateSimulation(dt) {
+      const moveSpeed = 2.2;
+      const turnSpeed = 1.8;
+
+      if (sim.keys.has("q")) sim.listener.heading -= turnSpeed * dt;
+      if (sim.keys.has("e")) sim.listener.heading += turnSpeed * dt;
+
+      const forward = listenerForward();
+      const forwardX = forward.x;
+      const forwardZ = forward.z;
+      const rightX = forward.z;
+      const rightZ = -forward.x;
+      let mx = 0;
+      let mz = 0;
+
+      if (sim.keys.has("w")) { mx += forwardX; mz += forwardZ; }
+      if (sim.keys.has("s")) { mx -= forwardX; mz -= forwardZ; }
+      if (sim.keys.has("d")) { mx += rightX; mz += rightZ; }
+      if (sim.keys.has("a")) { mx -= rightX; mz -= rightZ; }
+
+      const mag = Math.hypot(mx, mz) || 1;
+      sim.listener.x = clamp(sim.listener.x + (mx / mag) * moveSpeed * dt, -WORLD_RADIUS_M + 0.5, WORLD_RADIUS_M - 0.5);
+      sim.listener.z = clamp(sim.listener.z + (mz / mag) * moveSpeed * dt, -WORLD_RADIUS_M + 0.5, WORLD_RADIUS_M - 0.5);
+
+      for (const obstacle of sim.obstacles) {
+        const after = computeObstacleMetrics(obstacle);
+        if (after.distance < 0.65 && obstacle.wasNear !== true) {
+          appendLog("near_contact", { obstacleId: obstacle.id, distanceM: Number(after.distance.toFixed(3)) });
+          obstacle.wasNear = true;
+        }
+        if (after.distance >= 0.75) obstacle.wasNear = false;
+        obstacle.prevDistance = after.distance;
+      }
+    }
+
+    function drawScene() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const center = worldToCanvas(0, 0);
+      const edge = worldToCanvas(WORLD_RADIUS_M, 0);
+      const radiusPx = edge.x - center.x;
+
+      ctx.save();
+      ctx.strokeStyle = "#d8d8d8";
+      ctx.lineWidth = 1;
+      for (let r = 2; r <= WORLD_RADIUS_M; r += 2) {
+        ctx.beginPath();
+        ctx.arc(center.x, center.y, r * radiusPx / WORLD_RADIUS_M, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      ctx.beginPath();
+      ctx.strokeStyle = "#222222";
+      ctx.moveTo(center.x - radiusPx, center.y);
+      ctx.lineTo(center.x + radiusPx, center.y);
+      ctx.moveTo(center.x, center.y - radiusPx);
+      ctx.lineTo(center.x, center.y + radiusPx);
+      ctx.stroke();
+      ctx.restore();
+
+      const listener = worldToCanvas(sim.listener.x, sim.listener.z);
+      ctx.save();
+      ctx.translate(listener.x, listener.y);
+      ctx.rotate(sim.listener.heading);
+      ctx.fillStyle = "#ffffff";
+      ctx.beginPath();
+      ctx.arc(0, 0, 12, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = "#111111";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(0, 0, 12, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(0, -2);
+      ctx.lineTo(0, -34);
+      ctx.stroke();
+      ctx.restore();
+
+      for (const obstacle of sim.obstacles) {
+        const p = worldToCanvas(obstacle.x, obstacle.z);
+        const m = computeObstacleMetrics(obstacle);
+        ctx.fillStyle = "#111111";
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, radarObstacleRadius(m.distance), 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = "#111111";
+        ctx.font = "12px ui-monospace, monospace";
+        ctx.fillText(obstacle.id, p.x + 13, p.y - 11);
+      }
+    }
+
+    function drawPov() {
+      povCtx.clearRect(0, 0, povCanvas.width, povCanvas.height);
+      povCtx.fillStyle = "#ffffff";
+      povCtx.fillRect(0, 0, povCanvas.width, povCanvas.height);
+
+      povCtx.strokeStyle = "#222222";
+      povCtx.lineWidth = 2;
+      povCtx.strokeRect(1, 1, povCanvas.width - 2, povCanvas.height - 2);
+
+      const horizonY = Math.round(povCanvas.height * 0.54);
+      povCtx.strokeStyle = "#d8d8d8";
+      povCtx.lineWidth = 1;
+      povCtx.beginPath();
+      povCtx.moveTo(0, horizonY);
+      povCtx.lineTo(povCanvas.width, horizonY);
+      povCtx.stroke();
+
+      povCtx.fillStyle = "#111111";
+      povCtx.font = "11px ui-monospace, monospace";
+      povCtx.fillText("POV", 10, 18);
+      povCtx.fillText(`${POV_FOV_DEG}deg`, povCanvas.width - 48, 18);
+
+      const centerX = povCanvas.width / 2;
+      povCtx.strokeStyle = "#777777";
+      povCtx.beginPath();
+      povCtx.moveTo(centerX, 28);
+      povCtx.lineTo(centerX, povCanvas.height - 14);
+      povCtx.stroke();
+
+      const sweepPhase = sim.mode === "baseline" ? getSweepPhase() : null;
+      let sweepOverObject = false;
+
+      for (const obstacle of sim.obstacles) {
+        const point = obstacleToPovImage(obstacle);
+        if (!point.visible || sweepPhase === null) continue;
+        if (Math.abs(point.xNorm - sweepPhase) <= audio.baseline.columnWindow) {
+          sweepOverObject = true;
+        }
+      }
+
+      if (sweepPhase !== null) {
+        const sweepX = sweepPhase * povCanvas.width;
+        povCtx.strokeStyle = sweepOverObject ? "#d01818" : "#1167d8";
+        povCtx.lineWidth = 3;
+        povCtx.beginPath();
+        povCtx.moveTo(sweepX, 1);
+        povCtx.lineTo(sweepX, povCanvas.height - 2);
+        povCtx.stroke();
+      }
+
+      let visibleCount = 0;
+      for (const obstacle of sim.obstacles) {
+        const point = obstacleToPovImage(obstacle);
+        if (!point.visible) continue;
+
+        visibleCount++;
+        const m = point.metrics;
+        const size = povObstacleRadius(m.distance);
+        const x = point.xNorm * povCanvas.width;
+        const y = point.yNorm * povCanvas.height;
+
+        povCtx.fillStyle = "#111111";
+        povCtx.beginPath();
+        povCtx.arc(x, y, size, 0, Math.PI * 2);
+        povCtx.fill();
+        povCtx.font = "11px ui-monospace, monospace";
+        povCtx.fillText(obstacle.id, x + size + 4, y - size);
+      }
+
+      if (visibleCount === 0) {
+        povCtx.fillStyle = "#777777";
+        povCtx.font = "11px ui-monospace, monospace";
+        povCtx.fillText("no obstacle in view", 10, povCanvas.height - 12);
+      }
+    }
+
+    function setAudioParam(param, value, time) {
+      if (param && typeof param.linearRampToValueAtTime === "function") {
+        param.cancelScheduledValues(time);
+        param.linearRampToValueAtTime(value, time + 0.035);
+      }
+    }
+
+    function createObstacleVoice(obstacle) {
+      const osc = audio.ctx.createOscillator();
+      const gain = audio.ctx.createGain();
+      const hrtf = audio.ctx.createPanner();
+
+      osc.type = "sine";
+      osc.frequency.value = hrtfFrequencyRange().low;
+      gain.gain.value = 0.0001;
+
+      hrtf.panningModel = "HRTF";
+      hrtf.distanceModel = "inverse";
+      hrtf.refDistance = 1;
+      hrtf.maxDistance = WORLD_RADIUS_M * 2;
+      hrtf.rolloffFactor = 1.4;
+      hrtf.coneInnerAngle = 360;
+      hrtf.coneOuterAngle = 360;
+      hrtf.coneOuterGain = 0;
+
+      osc.connect(gain);
+      gain.connect(hrtf);
+      hrtf.connect(audio.master);
+      osc.start();
+
+      const voice = { osc, gain, hrtf };
+      audio.hrtfVoices.set(obstacle.id, voice);
+      return voice;
+    }
+
+    function voiceFrequencyForRow(row) {
+      const c = voiceAlgorithmConfig;
+      const { low, high } = voiceFrequencyRange();
+      const t = clamp(row, 0, c.rows - 1) / (c.rows - 1);
+      return high * Math.pow(low / high, t);
+    }
+    window.voiceFrequencyForRow = voiceFrequencyForRow;
+
+    function voiceAmplitudeForLevel(level) {
+      if (level <= 0) return 0;
+      return Math.pow(10, (level - (voiceAlgorithmConfig.grayLevels - 1)) / 10);
+    }
+
+    function buildVoiceImage() {
+      const c = voiceAlgorithmConfig;
+      const pixels = new Uint8Array(c.rows * c.columns);
+
+      for (const obstacle of sim.obstacles) {
+        const point = obstacleToPovImage(obstacle);
+        if (!point.visible) continue;
+
+        const m = point.metrics;
+        const centerX = Math.round(point.xNorm * (c.columns - 1));
+        const centerY = Math.round(point.yNorm * (c.rows - 1));
+        const radius = voiceImageRadius(m.distance);
+        const level = clamp(Math.round(15 - m.distance / WORLD_RADIUS_M * 8), 1, 15);
+
+        for (let y = centerY - radius; y <= centerY + radius; y++) {
+          if (y < 0 || y >= c.rows) continue;
+          for (let x = centerX - radius; x <= centerX + radius; x++) {
+            if (x < 0 || x >= c.columns) continue;
+            const falloff = 1 - Math.hypot(x - centerX, y - centerY) / (radius + 0.5);
+            if (falloff <= 0) continue;
+            const pixelLevel = clamp(Math.round(level * falloff), 1, 15);
+            const index = y * c.columns + x;
+            pixels[index] = Math.max(pixels[index], pixelLevel);
+          }
+        }
+      }
+
+      return pixels;
+    }
+    window.buildVoiceImage = buildVoiceImage;
+
+    function voicePixelAmplitude(image, row, column, q, q2) {
+      const c = voiceAlgorithmConfig;
+      const at = x => voiceAmplitudeForLevel(image[row * c.columns + x]);
+      if (!c.useBSplineWindow) return at(column);
+      if (column === 0) return (1 - q2) * at(column) + q2 * at(column + 1);
+      if (column === c.columns - 1) return (q2 - q + 0.5) * at(column - 1) + (0.5 + q - q2) * at(column);
+      return (q2 - q + 0.5) * at(column - 1) + (0.5 + q - q * q) * at(column) + q2 * at(column + 1);
+    }
+
+    function createVoiceSoundscapeBuffer(image) {
+      const c = voiceAlgorithmConfig;
+      let randomState = 0;
+      const hificodeRandom = () => {
+        randomState = (randomState * 9301 + 49297) % 233280;
+        return randomState / 233280;
+      };
+      const sampleRate = audio.ctx.sampleRate || c.sampleRate;
+      const sampleCount = 2 * Math.floor(0.5 * sampleRate * c.sweepDuration);
+      const samplesPerColumn = Math.floor(sampleCount / c.columns);
+      const buffer = audio.ctx.createBuffer(2, sampleCount, sampleRate);
+      const left = buffer.getChannelData(0);
+      const right = buffer.getChannelData(1);
+      const angularFrequencies = Array.from({ length: c.rows }, (_, visualRow) => 2 * Math.PI * voiceFrequencyForRow(visualRow));
+      const phases = angularFrequencies.map(() => hificodeRandom() * Math.PI * 2);
+      const scale = 0.5 / Math.sqrt(c.rows);
+      const tau1 = 0.5 / angularFrequencies[0];
+      const tau2 = 0.25 * tau1 * tau1;
+      const dt = 1 / sampleRate;
+      let yl = 0;
+      let ypl = 0;
+      let zl = 0;
+      let yr = 0;
+      let ypr = 0;
+      let zr = 0;
+
+      for (let k = 0; k < sampleCount; k++) {
+        const q = (k % samplesPerColumn) / Math.max(1, samplesPerColumn - 1);
+        const q2 = 0.5 * q * q;
+        const column = Math.min(c.columns - 1, Math.floor(k / samplesPerColumn));
+        const r = k / Math.max(1, sampleCount - 1);
+        const theta = (r - 0.5) * Math.PI * 2 / 3;
+        const pathOffset = 0.5 * c.headSizeM * (theta + Math.sin(theta));
+        const tl = k * dt;
+        const tr = tl + (c.useStereoDelay ? pathOffset / c.speedOfSoundMps : 0);
+        const shadowDistance = Math.abs(pathOffset);
+        let sl = 0;
+        let sr = 0;
+
+        for (let row = 0; row < c.rows; row++) {
+          const a = voicePixelAmplitude(image, row, column, q, q2);
+          if (a === 0) continue;
+
+          const w = angularFrequencies[row];
+          let hrtfl = 1;
+          let hrtfr = 1;
+          if (c.useDiffraction && shadowDistance > 0) {
+            const hrtf = (Math.PI * 2 * c.speedOfSoundMps / w > shadowDistance)
+              ? 1
+              : Math.PI * 2 * c.speedOfSoundMps / (shadowDistance * w);
+            if (theta < 0) hrtfr = hrtf;
+            else hrtfl = hrtf;
+          }
+          if (c.useRelativeFade) {
+            hrtfl *= 1 - 0.7 * r;
+            hrtfr *= 0.3 + 0.7 * r;
+          }
+
+          sl += hrtfl * a * Math.sin(w * tl + phases[row]);
+          sr += hrtfr * a * Math.sin(w * tr + phases[row]);
+        }
+
+        if (c.useStartupClick && k < sampleCount / (5 * c.columns)) sl = (hificodeRandom() * 2 - 1) / scale;
+
+        ypl = yl;
+        yl = tau1 / dt + tau2 / (dt * dt);
+        yl = (sl + yl * ypl + tau2 / dt * zl) / (1 + yl);
+        zl = (yl - ypl) / dt;
+
+        ypr = yr;
+        yr = tau1 / dt + tau2 / (dt * dt);
+        yr = (sr + yr * ypr + tau2 / dt * zr) / (1 + yr);
+        zr = (yr - ypr) / dt;
+
+        left[k] = clamp(scale * yl, -1, 1);
+        right[k] = clamp(scale * yr, -1, 1);
+      }
+
+      return buffer;
+    }
+
+    function stopBaselineSoundscape() {
+      if (!audio.baseline.activeSource) return;
+      try {
+        audio.baseline.activeSource.stop();
+      } catch (error) {
+        if (error.name !== "InvalidStateError") throw error;
+      }
+      audio.baseline.activeSource = null;
+    }
+
+    function syncAudioButton() {
+      const button = document.getElementById("startAudio");
+      button.textContent = sim.audioStarted ? "Stop Audio" : "Start Audio";
+      button.dataset.audioState = sim.audioStarted ? "playing" : "stopped";
+    }
+
+    function silenceAudioVoices() {
+      stopBaselineSoundscape();
+      if (!audio.ctx) return;
+      for (const voice of audio.hrtfVoices.values()) {
+        setAudioParam(voice.gain.gain, 0.0001, audio.ctx.currentTime);
+      }
+    }
+
+    async function startAudio() {
+      if (!audio.ctx) {
+        audio.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        audio.master = audio.ctx.createGain();
+        audio.master.gain.value = 0.36;
+        audio.master.connect(audio.ctx.destination);
+
+        for (const obstacle of sim.obstacles) {
+          createObstacleVoice(obstacle);
+        }
+      }
+
+      await audio.ctx.resume();
+      sim.audioStarted = true;
+      syncAudioButton();
+      appendLog("audio_started", { sampleRate: audio.ctx.sampleRate });
+    }
+
+    async function stopAudio() {
+      if (!sim.audioStarted) return;
+      silenceAudioVoices();
+      if (audio.ctx) await audio.ctx.suspend();
+      sim.audioStarted = false;
+      syncAudioButton();
+      appendLog("audio_stopped", {});
+    }
+
+    async function toggleAudio() {
+      if (sim.audioStarted) {
+        await stopAudio();
+      } else {
+        await startAudio();
+      }
+    }
+
+    function syncFrequencyControls() {
+      document.getElementById("voiceLowFrequency").value = String(soundSettings.voiceLowFrequencyHz);
+      document.getElementById("voiceHighFrequency").value = String(soundSettings.voiceHighFrequencyHz);
+      document.getElementById("hrtfLowFrequency").value = String(soundSettings.hrtfLowFrequencyHz);
+      document.getElementById("hrtfHighFrequency").value = String(soundSettings.hrtfHighFrequencyHz);
+    }
+
+    function updateFrequencyRangeFromInputs() {
+      const voiceRange = coerceFrequencyRange(
+        document.getElementById("voiceLowFrequency").value,
+        document.getElementById("voiceHighFrequency").value,
+        voiceAlgorithmConfig.lowFrequencyHz,
+        voiceAlgorithmConfig.highFrequencyHz
+      );
+      const hrtfRange = coerceFrequencyRange(
+        document.getElementById("hrtfLowFrequency").value,
+        document.getElementById("hrtfHighFrequency").value,
+        HRTF_FREQUENCY_DEFAULTS.lowFrequencyHz,
+        HRTF_FREQUENCY_DEFAULTS.highFrequencyHz
+      );
+      soundSettings.voiceLowFrequencyHz = Math.round(voiceRange.low);
+      soundSettings.voiceHighFrequencyHz = Math.round(voiceRange.high);
+      soundSettings.hrtfLowFrequencyHz = Math.round(hrtfRange.low);
+      soundSettings.hrtfHighFrequencyHz = Math.round(hrtfRange.high);
+      syncFrequencyControls();
+      appendLog("frequency_range_changed", {
+        voice: { ...voiceFrequencyRange() },
+        hrtf: { ...hrtfFrequencyRange() }
+      });
+    }
+
+    function resetFrequencyRange(kind) {
+      if (kind === "voice") {
+        soundSettings.voiceLowFrequencyHz = voiceAlgorithmConfig.lowFrequencyHz;
+        soundSettings.voiceHighFrequencyHz = voiceAlgorithmConfig.highFrequencyHz;
+      } else if (kind === "hrtf") {
+        soundSettings.hrtfLowFrequencyHz = HRTF_FREQUENCY_DEFAULTS.lowFrequencyHz;
+        soundSettings.hrtfHighFrequencyHz = HRTF_FREQUENCY_DEFAULTS.highFrequencyHz;
+      }
+      syncFrequencyControls();
+      appendLog("frequency_range_reset", {
+        kind,
+        voice: { ...voiceFrequencyRange() },
+        hrtf: { ...hrtfFrequencyRange() }
+      });
+    }
+    window.resetFrequencyRange = resetFrequencyRange;
+
+    function setMode(mode) {
+      sim.mode = mode;
+      document.getElementById("modeBaseline").setAttribute("aria-pressed", String(mode === "baseline"));
+      document.getElementById("modeHrtf").setAttribute("aria-pressed", String(mode === "hrtf"));
+
+      if (audio.ctx && mode === "baseline") {
+        audio.baseline.sweepIndex = -1;
+        for (const voice of audio.hrtfVoices.values()) {
+          setAudioParam(voice.gain.gain, 0.0001, audio.ctx.currentTime);
+        }
+      } else {
+        stopBaselineSoundscape();
+      }
+
+      appendLog("mode_changed", { mode });
+    }
+
+    function updateBaselineSweep(now) {
+      const cycle = audio.baseline.sweepDuration + audio.baseline.pauseDuration;
+      const cyclePosition = now % cycle;
+      const inSweep = cyclePosition <= audio.baseline.sweepDuration;
+      const sweepIndex = Math.floor(now / cycle);
+
+      if (sweepIndex !== audio.baseline.sweepIndex) {
+        audio.baseline.sweepIndex = sweepIndex;
+        stopBaselineSoundscape();
+
+        if (inSweep) {
+          const image = buildVoiceImage();
+          const source = audio.ctx.createBufferSource();
+          source.buffer = createVoiceSoundscapeBuffer(image);
+          source.connect(audio.master);
+          source.start(now);
+          source.addEventListener("ended", () => {
+            if (audio.baseline.activeSource === source) audio.baseline.activeSource = null;
+            source.disconnect();
+          });
+          audio.baseline.activeSource = source;
+          appendLog("voice_soundscape_start", {
+            sweepIndex,
+            columns: voiceAlgorithmConfig.columns,
+            rows: voiceAlgorithmConfig.rows,
+            durationSec: voiceAlgorithmConfig.sweepDuration,
+            maxLevel: Math.max(...image)
+          });
+        }
+      }
+
+      if (!inSweep) {
+        audio.baseline.previousPhase = 1;
+        return;
+      }
+
+      audio.baseline.previousPhase = cyclePosition / audio.baseline.sweepDuration;
+    }
+
+    function updateAudioFromSimulation() {
+      if (!audio.ctx || !sim.audioStarted) return;
+
+      const now = audio.ctx.currentTime;
+      if (sim.mode === "baseline") {
+        updateBaselineSweep(now);
+        return;
+      }
+
+      const listener = audio.ctx.listener;
+      const listenerPosition = worldToHrtfPosition(sim.listener.x, 0, sim.listener.z);
+      const forward = listenerHrtfForward();
+      const hx = forward.x;
+      const hz = forward.z;
+
+      if ("forwardX" in listener) {
+        setAudioParam(listener.positionX, listenerPosition.x, now);
+        setAudioParam(listener.positionY, listenerPosition.y, now);
+        setAudioParam(listener.positionZ, listenerPosition.z, now);
+        setAudioParam(listener.forwardX, hx, now);
+        setAudioParam(listener.forwardY, 0, now);
+        setAudioParam(listener.forwardZ, hz, now);
+        setAudioParam(listener.upX, 0, now);
+        setAudioParam(listener.upY, 1, now);
+        setAudioParam(listener.upZ, 0, now);
+      } else if (listener.setOrientation) {
+        listener.setPosition(listenerPosition.x, listenerPosition.y, listenerPosition.z);
+        listener.setOrientation(hx, 0, hz, 0, 1, 0);
+      }
+
+      for (const obstacle of sim.obstacles) {
+        const voice = audio.hrtfVoices.get(obstacle.id) || createObstacleVoice(obstacle);
+        const m = computeObstacleMetrics(obstacle);
+        const sourcePosition = worldToHrtfPosition(obstacle.x, 0, obstacle.z);
+        const distanceGain = hrtfDistanceGain(m.distance);
+        setAudioParam(voice.gain.gain, distanceGain, now);
+        setAudioParam(voice.osc.frequency, hrtfFrequencyForMetrics(m), now);
+
+        if ("positionX" in voice.hrtf) {
+          setAudioParam(voice.hrtf.positionX, sourcePosition.x, now);
+          setAudioParam(voice.hrtf.positionY, sourcePosition.y, now);
+          setAudioParam(voice.hrtf.positionZ, sourcePosition.z, now);
+        } else {
+          voice.hrtf.setPosition(sourcePosition.x, sourcePosition.y, sourcePosition.z);
+        }
+      }
+    }
+
+    function sampleResearchVectors(nowMs) {
+      if (nowMs - lastSampleTime < 250) return;
+      lastSampleTime = nowMs;
+
+      for (const obstacle of sim.obstacles) {
+        const m = computeObstacleMetrics(obstacle);
+        appendLog("sample", {
+          obstacleId: obstacle.id,
+          listener: {
+            x: Number(sim.listener.x.toFixed(3)),
+            z: Number(sim.listener.z.toFixed(3)),
+            headingRad: Number(sim.listener.heading.toFixed(4))
+          },
+          source: {
+            x: Number(obstacle.x.toFixed(3)),
+            y: 0,
+            z: Number(obstacle.z.toFixed(3))
+          },
+          azimuthRad: Number(m.relativeAzimuth.toFixed(4)),
+          elevationRad: 0,
+          distanceM: Number(m.distance.toFixed(3)),
+          radialVelocityFrame: Number(m.radialVelocity.toFixed(4)),
+          pan: Number(m.pan.toFixed(3))
+        });
+      }
+    }
+
+    function renderTelemetry() {
+      const sweepCycle = audio.baseline.sweepDuration + audio.baseline.pauseDuration;
+      const sweepTime = audio.ctx && sim.audioStarted ? audio.ctx.currentTime % sweepCycle : 0;
+      const sweepPhase = sweepTime <= audio.baseline.sweepDuration
+        ? sweepTime / audio.baseline.sweepDuration
+        : null;
+      const lines = [
+        `mode: ${sim.mode}`,
+        `audio: ${sim.audioStarted ? "started" : "locked"}`,
+        `vOICe range: ${voiceFrequencyRange().low}-${voiceFrequencyRange().high}Hz`,
+        `HRTF range: ${hrtfFrequencyRange().low}-${hrtfFrequencyRange().high}Hz`,
+        `listener: x=${sim.listener.x.toFixed(2)} z=${sim.listener.z.toFixed(2)} heading=${(sim.listener.heading * 180 / Math.PI).toFixed(1)}deg`,
+        `pov fov: ${POV_FOV_DEG}deg`,
+        sim.mode === "baseline"
+          ? `pov sweep: ${sweepPhase === null ? "pause" : `x=${sweepPhase.toFixed(2)} pan=${(sweepPhase * 2 - 1).toFixed(2)}`}`
+          : "sweep: off",
+        ""
+      ];
+
+      for (const obstacle of sim.obstacles) {
+        const m = computeObstacleMetrics(obstacle);
+        const inPov = Math.abs(m.relativeAzimuth) <= POV_FOV_RAD / 2;
+        lines.push(
+          `${obstacle.id}: az=${(m.relativeAzimuth * 180 / Math.PI).toFixed(1)}deg ` +
+          `el=${(m.elevation * 180 / Math.PI).toFixed(1)}deg ` +
+          `d=${m.distance.toFixed(2)}m rv=${m.radialVelocity.toFixed(3)}m/frame pan=${m.pan.toFixed(2)}`,
+          `front/back=${Math.cos(m.relativeAzimuth) >= 0 ? "front" : "back"} ` +
+          `tone=${Math.round(hrtfFrequencyForMetrics(m))}Hz pov=${inPov ? "visible" : "hidden"} drag=obstacle-to-move`
+        );
+      }
+
+      document.getElementById("telemetry").textContent = lines.join("\n");
+      if (logExpanded) {
+        document.getElementById("eventLog").textContent = sim.log.slice(-80).map(e => JSON.stringify(e)).join("\n");
+      }
+    }
+
+    function frame(now) {
+      const dt = Math.min(0.05, (now - sim.lastTime) / 1000);
+      sim.lastTime = now;
+      updateSimulation(dt);
+      updateAudioFromSimulation();
+      sampleResearchVectors(now);
+      drawScene();
+      drawPov();
+      renderTelemetry();
+      requestAnimationFrame(frame);
+    }
+
+    window.addEventListener("keydown", event => {
+      const key = event.key.toLowerCase();
+      if ("wasdqe".includes(key)) {
+        sim.keys.add(key);
+        event.preventDefault();
+      }
+    });
+
+    window.addEventListener("keyup", event => {
+      sim.keys.delete(event.key.toLowerCase());
+    });
+
+    canvas.addEventListener("pointerdown", event => {
+      sim.drag.active = true;
+      const hit = canvasToWorld(event.clientX, event.clientY);
+      const obstacle = sim.obstacles[0];
+      const obstacleCanvas = obstacle ? worldToCanvas(obstacle.x, obstacle.z) : null;
+      const hitObstacle = obstacleCanvas
+        ? Math.hypot(hit.canvasX - obstacleCanvas.x, hit.canvasY - obstacleCanvas.y) <= 26
+        : false;
+      sim.drag.type = hitObstacle ? "obstacle" : "heading";
+      sim.drag.x = event.clientX;
+      if (hitObstacle && obstacle) {
+        obstacle.x = hit.x;
+        obstacle.z = hit.z;
+        appendLog("obstacle_drag_start", {
+          obstacleId: obstacle.id,
+          x: Number(obstacle.x.toFixed(3)),
+          z: Number(obstacle.z.toFixed(3))
+        });
+      }
+      canvas.setPointerCapture(event.pointerId);
+    });
+
+    canvas.addEventListener("pointermove", event => {
+      if (!sim.drag.active) return;
+      if (sim.drag.type === "obstacle") {
+        const obstacle = sim.obstacles[0];
+        const hit = canvasToWorld(event.clientX, event.clientY);
+        if (obstacle) {
+          obstacle.x = hit.x;
+          obstacle.z = hit.z;
+        }
+      } else {
+        const dx = event.clientX - sim.drag.x;
+        sim.drag.x = event.clientX;
+        sim.listener.heading += dx * 0.006;
+      }
+    });
+
+    canvas.addEventListener("pointerup", () => {
+      if (sim.drag.type === "obstacle" && sim.obstacles[0]) {
+        const obstacle = sim.obstacles[0];
+        appendLog("obstacle_drag_end", {
+          obstacleId: obstacle.id,
+          x: Number(obstacle.x.toFixed(3)),
+          z: Number(obstacle.z.toFixed(3))
+        });
+      }
+      sim.drag.active = false;
+      sim.drag.type = null;
+    });
+
+    document.getElementById("startAudio").addEventListener("click", toggleAudio);
+    document.getElementById("modeBaseline").addEventListener("click", () => setMode("baseline"));
+    document.getElementById("modeHrtf").addEventListener("click", () => setMode("hrtf"));
+    document.getElementById("resetScene").addEventListener("click", restoreInitialScene);
+    for (const id of ["voiceLowFrequency", "voiceHighFrequency", "hrtfLowFrequency", "hrtfHighFrequency"]) {
+      document.getElementById(id).addEventListener("input", updateFrequencyRangeFromInputs);
+      document.getElementById(id).addEventListener("change", updateFrequencyRangeFromInputs);
+    }
+    document.getElementById("resetVoiceRange").addEventListener("click", () => resetFrequencyRange("voice"));
+    document.getElementById("resetHrtfRange").addEventListener("click", () => resetFrequencyRange("hrtf"));
+    document.getElementById("toggleLog").addEventListener("click", () => {
+      logExpanded = !logExpanded;
+      const button = document.getElementById("toggleLog");
+      const log = document.getElementById("eventLog");
+      button.setAttribute("aria-expanded", String(logExpanded));
+      button.textContent = logExpanded ? "Hide Event Log" : "Show Event Log";
+      log.hidden = !logExpanded;
+      if (logExpanded) {
+        log.textContent = sim.log.slice(-80).map(e => JSON.stringify(e)).join("\n");
+      }
+    });
+    document.getElementById("exportLog").addEventListener("click", () => {
+      const blob = new Blob([JSON.stringify(sim.log, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `web-hrtf-log-${Date.now()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    restoreInitialScene();
+    syncFrequencyControls();
+    document.getElementById("eventLog").hidden = true;
+    requestAnimationFrame(frame);
+  </script>
+</body>
+</html>
