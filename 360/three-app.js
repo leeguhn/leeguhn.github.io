@@ -24,6 +24,10 @@
   scene.background = new T.Color(0xffffff);
   const camera = new T.PerspectiveCamera(60, 1, 0.05, 100);
   const voiCamera = new T.PerspectiveCamera(60, 176 / 64, 0.05, 100);
+  // Three.js uses the opposite horizontal screen sign for a +Z-facing camera.
+  // Mirroring the camera keeps visual left/right consistent with the radar and HRTF.
+  camera.scale.x = -1;
+  voiCamera.scale.x = -1;
   const floor = new T.Mesh(new T.PlaneGeometry(24, 24), new T.MeshBasicMaterial({ color: 0xffffff }));
   floor.rotation.x = -Math.PI / 2;
   scene.add(floor);
@@ -116,7 +120,7 @@
     radarCtx.clearRect(0, 0, w, h); radarCtx.strokeStyle = "#dedede"; radarCtx.lineWidth = 1;
     for (let r = 20; r < w / 2; r += 24) { radarCtx.beginPath(); radarCtx.arc(cx, cy, r, 0, Math.PI * 2); radarCtx.stroke(); }
     radarCtx.beginPath(); radarCtx.moveTo(cx, 0); radarCtx.lineTo(cx, h); radarCtx.moveTo(0, cy); radarCtx.lineTo(w, cy); radarCtx.stroke();
-    state.obstacles.forEach((o) => { const r = relative(o), x = cx + r.x * scale, y = cy - r.z * scale; if (x < -20 || x > w + 20 || y < -20 || y > h + 20) return; radarCtx.fillStyle = "#111"; radarCtx.beginPath(); radarCtx.arc(x, y, Math.max(5, Math.min(11, o.width * 5)), 0, Math.PI * 2); radarCtx.fill(); radarCtx.fillStyle = "#111"; radarCtx.font = "10px monospace"; radarCtx.fillText(o.label, x + 8, y - 7); });
+    state.obstacles.forEach((o) => { const dx = o.x - state.listener.x, dz = o.z - state.listener.z, x = cx + dx * scale, y = cy - dz * scale; if (x < -20 || x > w + 20 || y < -20 || y > h + 20) return; radarCtx.fillStyle = "#111"; radarCtx.beginPath(); radarCtx.arc(x, y, Math.max(5, Math.min(11, o.width * 5)), 0, Math.PI * 2); radarCtx.fill(); radarCtx.fillStyle = "#111"; radarCtx.font = "10px monospace"; radarCtx.fillText(o.label, x + 8, y - 7); });
     radarCtx.strokeStyle = "#111"; radarCtx.lineWidth = 2; radarCtx.beginPath(); radarCtx.arc(cx, cy, 7, 0, Math.PI * 2); radarCtx.stroke(); const f = forward(); radarCtx.beginPath(); radarCtx.moveTo(cx, cy); radarCtx.lineTo(cx + f.x * 18, cy - f.z * 18); radarCtx.stroke();
   }
 
