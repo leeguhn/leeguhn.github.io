@@ -25,16 +25,18 @@ body { margin: 0; min-height: 100vh; background: var(--bg); color: var(--ink); f
 .radar-overlay #radar { width: 100%; height: 100%; display: block; }
 .world-card.editing .radar-overlay { top: 12%; left: 17%; width: 66%; height: 72%; cursor: crosshair; z-index: 8; }
 .world-card.editing .radar-overlay .view-label { font-size: 11px; }
+.world-card.editing canvas#viewport { position: absolute; top: 36px; left: 16px; width: 160px; height: 160px; border: 1px solid var(--line); z-index: 7; }
 #sweepLine { position: absolute; top: 24px; bottom: 0; width: 2px; background: var(--blue); z-index: 4; pointer-events: none; display: none; }
 .edit-palette, .motion-panel { position: absolute; background: #fff; border: 1px solid var(--line); z-index: 10; }
-.edit-palette { top: 12%; left: 2%; width: 132px; padding: 30px 8px 8px; display: grid; gap: 6px; }
+.edit-palette { top: 220px; left: 16px; width: 160px; padding: 30px 8px 8px; display: grid; gap: 6px; }
 .motion-panel { top: 12%; right: 2%; width: 180px; padding: 30px 10px 10px; }
 .motion-title { display: flex; align-items: center; justify-content: space-between; font: 12px var(--mono); margin-bottom: 10px; }
 .motion-tools { display: grid; gap: 5px; }
 .motion-tools button, .shape-tool { width: 100%; min-height: 30px; border: 1px solid var(--line); border-radius: 0; background: #fff; color: var(--ink); font: 11px var(--ui); cursor: pointer; }
 .motion-tools button[aria-pressed=true] { background: var(--red); border-color: var(--red); color: #fff; }
 .motion-panel p { margin: 10px 0 0; font: 10px/1.4 var(--mono); color: var(--muted); }
-.shape-tool { display: grid; grid-template-columns: 26px 1fr; gap: 6px; align-items: center; text-align: left; padding: 4px; }
+.shape-tool { display: grid; grid-template-columns: 26px 1fr; gap: 6px; align-items: center; text-align: left; padding: 4px; cursor: grab; }
+.shape-tool:active { cursor: grabbing; }
 .shape-tool:hover, .motion-tools button:hover { background: #f2f2f2; }
 .shape-tool .shape-glyph { margin: 0; }
 .circle-glyph { border-radius: 50%; background: #111; }
@@ -77,5 +79,5 @@ button[aria-pressed=true] { background: var(--ink); color: #fff; }
 .event-log { max-height: 200px; overflow: auto; }
 .full-button { width: 100%; margin-top: 12px; }
 @media (max-width: 1000px) { body { grid-template-columns: 1fr; } .inspector { border-left: 0; border-top: 1px solid var(--line); max-height: none; } .workspace { padding: 12px; } .world-card { height: min(70vh, 680px); min-height: 420px; } }
-@media (max-width: 700px) { .world-card.editing .radar-overlay { left: 22%; width: 56%; } .edit-palette { left: 2%; width: 19%; } .motion-panel { right: 2%; width: 19%; } .motion-panel .motion-title strong, .motion-panel p { display: none; } .motion-tools button, .shape-tool { font-size: 0; grid-template-columns: 1fr; justify-items: center; } }
-@media (max-width: 560px) { .inspector { padding: 14px; } .button-grid { grid-template-columns: 1fr; } .button-grid button:first-child { grid-column: auto; } .world-card { height: 65vh; min-height: 360px; } .radar-overlay { width: 132px; height: 132px; left: 10px; top: 32px; } .world-card.editing .radar-overlay { left: 23%; width: 54%; height: 62%; top: 16%; } .edit-palette { top: 16%; width: 20%; } .motion-panel { top: 16%; width: 20%; } .motion-heading { grid-template-columns: 1fr; } .range-row { grid-template-columns: 45px 1fr 1fr 26px; } }
+@media (max-width: 700px) { .world-card.editing .radar-overlay { left: 22%; width: 56%; } .world-card.editing canvas#viewport { width: 112px; height: 126px; left: 10px; top: 32px; } .edit-palette { left: 10px; top: 170px; width: 112px; } .motion-panel { right: 2%; width: 19%; } .motion-panel .motion-title strong, .motion-panel p { display: none; } .motion-tools button, .shape-tool { font-size: 0; grid-template-columns: 1fr; justify-items: center; } }
+@media (max-width: 560px) { .inspector { padding: 14px; } .button-grid { grid-template-columns: 1fr; } .button-grid button:first-child { grid-column: auto; } .world-card { height: 65vh; min-height: 360px; } .radar-overlay { width: 132px; height: 132px; left: 10px; top: 32px; } .world-card.editing .radar-overlay { left: 23%; width: 54%; height: 62%; top: 16%; } .world-card.editing canvas#viewport { width: 92px; height: 104px; left: 8px; top: 30px; } .edit-palette { top: 145px; left: 8px; width: 92px; } .motion-panel { top: 16%; width: 20%; } .motion-heading { grid-template-columns: 1fr; } .range-row { grid-template-columns: 45px 1fr 1fr 26px; } }
