@@ -8,10 +8,7 @@
 </head>
 <body>
   <main class="workspace">
-    <section class="views" aria-label="Simulation views">
-      <div class="view-card radar-card"><div class="view-label">RADAR / TOP-DOWN</div><canvas id="scene" width="700" height="700" aria-label="Top-down obstacle radar"></canvas></div>
-      <div class="view-card pov-card"><div class="view-label">FIRST-PERSON VIEW / 60 DEG</div><canvas id="pov" width="900" height="360" aria-label="First-person obstacle view"></canvas></div>
-    </section>
+    <section class="view-card world-card" aria-label="Three-dimensional first-person simulation"><div class="view-label">FIRST-PERSON 3D / 60 DEG</div><canvas id="viewport" aria-label="Three-dimensional first-person obstacle view"></canvas><div class="radar-overlay"><div class="view-label">RADAR</div><canvas id="radar" width="240" height="240" aria-label="Top-down radar from the same 3D scene"></canvas></div><div id="sweepLine" aria-hidden="true"></div></section>
   </main>
   <aside class="inspector">
     <header><div class="eyebrow">ETRI 360 / RESEARCH SANDBOX</div><h1>vOICe vs. 360 HRTF</h1><p>Configure multiple obstacles, repeatable motion, and spatial audio conditions.</p></header>
@@ -36,6 +33,7 @@
     <section class="panel frequencies"><div class="panel-heading"><h2>Frequency ranges</h2></div><div class="range-row"><span>vOICe</span><input id="voiceLow" type="number" min="80" max="12000"><input id="voiceHigh" type="number" min="100" max="16000"><button id="resetVoice" class="icon-button" title="Reset vOICe range" aria-label="Reset vOICe range">↩</button></div><div class="range-row"><span>HRTF</span><input id="hrtfLow" type="number" min="80" max="12000"><input id="hrtfHigh" type="number" min="100" max="16000"><button id="resetHrtf" class="icon-button" title="Reset HRTF range" aria-label="Reset HRTF range">↩</button></div></section>
     <pre id="telemetry" class="telemetry"></pre><button id="toggleLog" class="full-button" aria-expanded="false">Show Event Log</button><pre id="eventLog" class="event-log" hidden></pre>
   </aside>
-  <script src="app.js"></script>
+  <script src="vendor/three.min.js"></script>
+  <script src="three-app.js"></script>
 </body>
 </html>
