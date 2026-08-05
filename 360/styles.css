@@ -61,6 +61,8 @@ button[aria-pressed=true] { background: var(--ink); color: #fff; }
 #startAudio[data-audio-state=playing] { background: var(--red); border-color: var(--red); color: #fff; }
 .panel { border-top: 1px solid var(--line); padding: 14px 0; }
 .panel-heading { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.obstacles-panel .panel-heading { padding-right: 7px; }
+.editor .panel-heading > div { display: flex; align-items: center; }
 .icon-button { width: 26px; min-height: 26px; padding: 0; font-size: 16px; }
 .obstacle-list { display: grid; gap: 4px; }
 .obstacle-row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto 26px; gap: 8px; align-items: center; border: 1px solid var(--soft); min-height: 38px; padding: 4px 6px; font-size: 12px; cursor: pointer; }
