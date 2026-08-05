@@ -10,8 +10,10 @@
   const radarCtx = radar.getContext("2d");
   const sweepLine = $("sweepLine");
   const worldCard = document.querySelector(".world-card");
+  const VOICE_DEFAULT = Object.freeze({ low: 500, high: 5000 });
+  const HRTF_DEFAULT = Object.freeze({ low: 260, high: 1200 });
   const defaults = {
-    voiceLow: 500, voiceHigh: 5000, hrtfLow: 260, hrtfHigh: 1200,
+    voiceLow: VOICE_DEFAULT.low, voiceHigh: VOICE_DEFAULT.high, hrtfLow: HRTF_DEFAULT.low, hrtfHigh: HRTF_DEFAULT.high,
     listener: { x: 0, z: 0, heading: 0 },
     obstacles: [{ id: "A", label: "A", shape: "circle", x: 0, z: 4, heading: 0, width: 1, depth: 1, height: 1, audible: true, motion: "stationary", centerX: 0, centerZ: 0, radius: 3, degrees: 20 }]
   };
@@ -145,20 +147,22 @@
         osc.connect(gain).connect(panner).connect(audio.master); osc.start(); audio.voices.set(o.id, { osc, gain, panner });
       }
       const v = audio.voices.get(o.id); if (!v) return;
-      const r = relative(o), count = Math.max(1, state.obstacles.filter((x) => x.audible).length), level = state.mode === "hrtf" && audio.active && o.audible ? Math.min(0.8, 0.75 / Math.sqrt(count) / (0.5 + r.distance)) : 0.0001;
-      setParam(v.panner.positionX, o.x); setParam(v.panner.positionY, Math.max(0.5, o.height * 0.5)); setParam(v.panner.positionZ, -o.z); setParam(v.osc.frequency, state.hrtfLow + Math.min(1, r.distance / 12) * (state.hrtfHigh - state.hrtfLow)); setParam(v.gain.gain, level);
+      const r = relative(o), count = Math.max(1, state.obstacles.filter((x) => x.audible).length), level = state.mode === "hrtf" && audio.active && o.audible ? (1 / Math.sqrt(count)) * Math.max(0.03, Math.min(0.8, 1 / (0.5 + r.distance))) : 0.0001;
+      const azimuthT = Math.max(0, Math.min(1, (Math.cos(Math.atan2(r.x, r.z)) + 1) / 2));
+      setParam(v.panner.positionX, o.x); setParam(v.panner.positionY, Math.max(0.5, o.height * 0.5)); setParam(v.panner.positionZ, -o.z); setParam(v.osc.frequency, state.hrtfLow * Math.pow(state.hrtfHigh / state.hrtfLow, azimuthT)); setParam(v.gain.gain, level);
     });
   }
   function makeVoiBuffer(image) {
-    const sr = audio.ctx.sampleRate, length = Math.floor(sr * audio.sweepDuration), buffer = audio.ctx.createBuffer(1, length, sr), data = buffer.getChannelData(0), low = state.voiceLow, high = state.voiceHigh;
-    for (let i = 0; i < length; i++) { const column = Math.min(175, Math.floor(i / length * 176)), row = Math.min(63, Math.floor((i / length % 1) * 64)); const brightness = 1 - image[(63 - row) * 176 + column] / 255; const freq = low + (high - low) * (1 - row / 63); data[i] = brightness * Math.sin(2 * Math.PI * freq * i / sr) * 0.32; }
+    const sr = audio.ctx.sampleRate || 44100, length = Math.floor(sr * audio.sweepDuration), buffer = audio.ctx.createBuffer(2, length, sr), left = buffer.getChannelData(0), right = buffer.getChannelData(1), low = state.voiceLow, high = state.voiceHigh;
+    const phases = Array.from({ length: 64 }, (_, row) => row * 0.71), frequencies = Array.from({ length: 64 }, (_, row) => 2 * Math.PI * high * Math.pow(low / high, row / 63));
+    for (let i = 0; i < length; i++) { const column = Math.min(175, Math.floor(i / length * 176)), pan = column / 175 * 2 - 1, time = i / sr; let sample = 0; for (let row = 0; row < 64; row++) { const brightness = (255 - image[row * 176 + column]) / 255; if (brightness > 0) sample += brightness * 0.018 * Math.sin(frequencies[row] * time + phases[row]); } left[i] = sample * (1 - pan * 0.45); right[i] = sample * (1 + pan * 0.45); }
     return buffer;
   }
   function captureVoi() {
     const target = audio.renderTarget || (audio.renderTarget = new T.WebGLRenderTarget(176, 64, { depthBuffer: true })); const pixels = new Uint8Array(176 * 64 * 4); renderer.setRenderTarget(target); renderer.render(scene, voiCamera); renderer.readRenderTargetPixels(target, 0, 0, 176, 64, pixels); renderer.setRenderTarget(null); const image = new Uint8Array(176 * 64); for (let i = 0; i < image.length; i++) image[i] = pixels[i * 4]; return image;
   }
   function createAudio() {
-    if (audio.ctx) return; audio.ctx = new (window.AudioContext || window.webkitAudioContext)(); audio.master = audio.ctx.createGain(); audio.master.gain.value = 2; audio.master.connect(audio.ctx.destination); state.obstacles.filter((o) => o.audible).forEach((o) => { const osc = audio.ctx.createOscillator(), gain = audio.ctx.createGain(), panner = audio.ctx.createPanner(); panner.panningModel = "HRTF"; panner.distanceModel = "inverse"; panner.refDistance = 1; panner.maxDistance = 30; panner.rolloffFactor = 1; osc.type = "sine"; gain.gain.value = 0.035; osc.connect(gain).connect(panner).connect(audio.master); osc.start(); audio.voices.set(o.id, { osc, gain, panner }); }); syncAudioPositions(); }
+    if (audio.ctx) return; audio.ctx = new (window.AudioContext || window.webkitAudioContext)(); audio.master = audio.ctx.createGain(); audio.master.gain.value = 0.72; audio.master.connect(audio.ctx.destination); state.obstacles.filter((o) => o.audible).forEach((o) => { const osc = audio.ctx.createOscillator(), gain = audio.ctx.createGain(), panner = audio.ctx.createPanner(); panner.panningModel = "HRTF"; panner.distanceModel = "inverse"; panner.refDistance = 1; panner.maxDistance = 30; panner.rolloffFactor = 1; osc.type = "sine"; gain.gain.value = 0.0001; osc.connect(gain).connect(panner).connect(audio.master); osc.start(); audio.voices.set(o.id, { osc, gain, panner }); }); syncAudioPositions(); }
   function startSweep() { if (!audio.ctx || !audio.active || state.mode !== "baseline") return; const source = audio.ctx.createBufferSource(); source.buffer = makeVoiBuffer(captureVoi()); source.connect(audio.master); audio.sweepStart = audio.ctx.currentTime; audio.baseline = source; source.start(); source.onended = () => { if (audio.baseline === source) audio.baseline = null; }; }
   function startAudio() { createAudio(); audio.ctx.resume(); audio.active = true; $("startAudio").dataset.audioState = "playing"; $("startAudio").textContent = "Stop Audio"; syncAudioPositions(); startSweep(); log("audio started"); }
   function stopAudio() { if (audio.ctx) { if (audio.baseline) { try { audio.baseline.stop(); } catch {} audio.baseline = null; } audio.ctx.suspend(); } audio.active = false; syncAudioPositions(); $("startAudio").dataset.audioState = "stopped"; $("startAudio").textContent = "Start Audio"; }
