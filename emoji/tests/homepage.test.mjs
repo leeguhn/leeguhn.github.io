@@ -36,8 +36,22 @@ test('homepage no longer exposes the chatbot experiment interface', () => {
 test('homepage uses a plain responsive black-and-white treatment with a blue email', () => {
   assert.match(indexCss, /background:\s*#fff/);
   assert.match(indexCss, /color:\s*#000/);
-  assert.match(indexCss, /font-family:\s*Arial, Helvetica, sans-serif/);
+  assert.match(indexCss, /font-family:\s*"Helvetica Neue", Helvetica, Arial, sans-serif/);
   assert.match(appCss, /max-width:\s*720px/);
   assert.match(appCss, /\.contact\s+a\s*\{[^}]*color:\s*#0000ee/s);
   assert.match(appCss, /@media\s*\(max-width:\s*600px\)/);
+});
+
+test('homepage lists the two approved publications after the contact address', () => {
+  const visibleText = app.replace(/\s+/g, ' ');
+  const contactPosition = visibleText.indexOf('leeguhn@kaist.ac.kr');
+  const publicationsPosition = visibleText.indexOf('Publications');
+
+  assert.ok(publicationsPosition > contactPosition);
+  assert.match(visibleText, /Ambient Witness: Repurposing the Language Barrier as a Covert Safety Net in Domestic and Workplace Conflicts/);
+  assert.match(visibleText, /CHI 2026 Early Abstracts/);
+  assert.match(visibleText, /href="https:\/\/dl\.acm\.org\/doi\/10\.1145\/3772363\.3798859"/);
+  assert.match(visibleText, /DioramaCraft: A Human-AI Workflow for Transforming Personal Photographs into Layered Paper Theater Dioramas/);
+  assert.match(visibleText, /UIST 2026 Adjunct, forthcoming/);
+  assert.match(appCss, /\.publications h2\s*\{[^}]*border-bottom:\s*1px solid #000/s);
 });

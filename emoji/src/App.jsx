@@ -40,6 +40,24 @@ function App() {
       <p className="contact">
         <a href="mailto:leeguhn@kaist.ac.kr">leeguhn@kaist.ac.kr</a>
       </p>
+
+      <section className="publications" aria-labelledby="publications-heading">
+        <h2 id="publications-heading">Publications</h2>
+
+        <p className="publication">
+          <a href="https://dl.acm.org/doi/10.1145/3772363.3798859">
+            Ambient Witness: Repurposing the Language Barrier as a Covert
+            Safety Net in Domestic and Workplace Conflicts
+          </a>{' '}
+          (CHI 2026 Early Abstracts)
+        </p>
+
+        <p className="publication">
+          DioramaCraft: A Human-AI Workflow for Transforming Personal
+          Photographs into Layered Paper Theater Dioramas (UIST 2026 Adjunct,
+          forthcoming)
+        </p>
+      </section>
     </main>
   );
 }
