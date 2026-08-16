@@ -19,13 +19,14 @@ function App() {
 
       <ol>
         <li>lower technical barriers to creative production;</li>
-        <li>reduce repetitive and logistical work while preserving creative judgment; and</li>
-        <li>help people reason with space and time as materials for design.</li>
+        <li>help people reason with space and time as materials for design;</li>
+        <li>
+          and function as scaffolds that enable users to focus on aspects where
+          imagination and personal authorship can come to life.
+        </li>
       </ol>
 
       <p>
-        I build scaffolds that allow people to spend more of their attention
-        on the decisions where imagination and personal authorship matter.
         More broadly, I am interested in how interfaces can help people work
         meaningfully with constraints and translate ideas into tangible or
         interactive forms.
