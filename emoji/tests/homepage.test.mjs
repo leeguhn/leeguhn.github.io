@@ -72,3 +72,21 @@ test('publication links label only the paper references', () => {
   assert.match(visibleText, /\(CHI 2026 Early Abstracts\).*?<a href="https:\/\/dl\.acm\.org\/doi\/10\.1145\/3772363\.3798859">\s*\[paper\]\s*<\/a>/);
   assert.match(visibleText, /\(HCI Korea 2026\).*?<a href="https:\/\/make\.kaist\.ac\.kr\/files\/2026\/LeeG_Bias_KHCI26\.pdf">\s*\[paper\]\s*<\/a>/);
 });
+
+test('each publication displays its authors in the approved order', () => {
+  const visibleText = app.replace(/\s+/g, ' ');
+
+  assert.match(
+    visibleText,
+    /DioramaCraft:.*?Guhn Lee, Heejin Kim, Jiyoon Lee, Donggun Lee, Tak Yeon Lee.*?Ambient Witness:/,
+  );
+  assert.match(
+    visibleText,
+    /Ambient Witness:.*?Guhn Lee\*, Dilnurakhon Tulanova\*, Dongyeon Yang, Schein Baek, Junehwa Song.*?Passthrough Interpretive Assistant:/,
+  );
+  assert.match(
+    visibleText,
+    /Passthrough Interpretive Assistant:.*?Guhn Lee, Anam Ahmad Khan, Andrea Bianchi/,
+  );
+  assert.equal((app.match(/className="publication-authors"/g) || []).length, 3);
+});

@@ -44,7 +44,13 @@
 }
 
 .profile .publication {
+  margin-bottom: 4px;
+}
+
+.profile .publication-authors {
   margin-bottom: 20px;
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 @media (max-width: 600px) {

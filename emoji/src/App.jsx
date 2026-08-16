@@ -50,6 +50,10 @@ function App() {
           forthcoming)
         </p>
 
+        <p className="publication-authors">
+          Guhn Lee, Heejin Kim, Jiyoon Lee, Donggun Lee, Tak Yeon Lee
+        </p>
+
         <p className="publication">
           Ambient Witness: Repurposing the Language Barrier as a Covert Safety
           Net in Domestic and Workplace Conflicts (CHI 2026 Early Abstracts){' '}
@@ -58,12 +62,20 @@ function App() {
           </a>
         </p>
 
+        <p className="publication-authors">
+          Guhn Lee*, Dilnurakhon Tulanova*, Dongyeon Yang, Schein Baek, Junehwa Song
+        </p>
+
         <p className="publication">
           Passthrough Interpretive Assistant: Revealing Hidden Intent and Bias
           in eXtended Reality with AI (HCI Korea 2026){' '}
           <a href="https://make.kaist.ac.kr/files/2026/LeeG_Bias_KHCI26.pdf">
             [paper]
           </a>
+        </p>
+
+        <p className="publication-authors">
+          Guhn Lee, Anam Ahmad Khan, Andrea Bianchi
         </p>
       </section>
     </main>
