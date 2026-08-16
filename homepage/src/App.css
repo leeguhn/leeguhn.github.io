@@ -1,0 +1,69 @@
+.profile {
+  max-width: 720px;
+  padding: 64px 48px 80px;
+}
+
+.profile h1 {
+  margin: 0 0 32px;
+  font-size: 32px;
+  line-height: 1.2;
+}
+
+.profile p {
+  margin: 0 0 20px;
+}
+
+.profile ol {
+  margin: 0 0 20px;
+  padding-left: 24px;
+}
+
+.profile li {
+  margin-bottom: 6px;
+}
+
+.profile .contact {
+  margin-top: 40px;
+  margin-bottom: 0;
+}
+
+.contact a {
+  color: #0000ee;
+}
+
+.publications {
+  margin-top: 64px;
+}
+
+.publications h2 {
+  margin: 0 0 20px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #000;
+  font-size: 20px;
+  line-height: 1.3;
+}
+
+.profile .publication {
+  margin-bottom: 4px;
+}
+
+.profile .publication-authors {
+  margin-bottom: 20px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+@media (max-width: 600px) {
+  .profile {
+    padding: 32px 24px 48px;
+  }
+
+  .profile h1 {
+    font-size: 28px;
+    margin-bottom: 24px;
+  }
+
+  .publications {
+    margin-top: 48px;
+  }
+}

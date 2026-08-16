@@ -1,4 +1,4 @@
-name: Deploy Chatbot to GitHub Pages
+name: Deploy Homepage to GitHub Pages
 
 on:
   push:
@@ -28,28 +28,21 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-          cache-dependency-path: 'emoji/package-lock.json'
+          cache-dependency-path: 'homepage/package-lock.json'
       
       - name: Install dependencies
         run: npm ci
-        working-directory: emoji
+        working-directory: homepage
       
       - name: Build with Vite
         run: npm run build
-        working-directory: emoji
-        env:
-          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
-          VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
-          VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
-          VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
-          VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
-          VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
+        working-directory: homepage
       
       - name: Add static 360 prototype
-        run: cp -R 360 emoji/dist/360
+        run: cp -R 360 homepage/dist/360
 
       - name: Add static Kirigami Engine Lab
-        run: cp -R kirigami emoji/dist/kirigami
+        run: cp -R kirigami homepage/dist/kirigami
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -57,7 +50,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './emoji/dist'
+          path: './homepage/dist'
   
   deploy:
     environment:
