@@ -1,0 +1,43 @@
+import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+import test from 'node:test';
+
+const app = await readFile(new URL('../src/App.jsx', import.meta.url), 'utf8');
+const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+const appCss = await readFile(new URL('../src/App.css', import.meta.url), 'utf8');
+const indexCss = await readFile(new URL('../src/index.css', import.meta.url), 'utf8');
+
+test('homepage contains the complete approved profile and contact link', () => {
+  const visibleText = app.replace(/\s+/g, ' ');
+  assert.match(visibleText, /Guhn Lee/);
+  assert.match(visibleText, /second-year master/);
+  assert.match(visibleText, /lower technical barriers to creative production/);
+  assert.match(visibleText, /reduce repetitive and logistical work while preserving creative judgment/);
+  assert.match(visibleText, /reason with space and time as materials for design/);
+  assert.match(visibleText, /work meaningfully with constraints/);
+  assert.match(visibleText, /MFA in Visual Arts from the University of Chicago/);
+  assert.match(visibleText, /art, computer science, and linguistics at Grinnell College/);
+  assert.match(visibleText, /href="mailto:leeguhn@kaist\.ac\.kr"/);
+  assert.match(visibleText, />leeguhn@kaist\.ac\.kr</);
+});
+
+test('homepage no longer exposes the chatbot experiment interface', () => {
+  assert.doesNotMatch(app, /react-router-dom/);
+  assert.doesNotMatch(app, /Welcome/);
+  assert.doesNotMatch(app, /Experiment/);
+  assert.doesNotMatch(app, /Survey/);
+  assert.doesNotMatch(app, /Complete/);
+  assert.doesNotMatch(app, /ChatWindow/);
+  assert.doesNotMatch(app, /firebase/i);
+  assert.doesNotMatch(html, /chatbot/i);
+  assert.match(html, /<title>Guhn Lee<\/title>/);
+});
+
+test('homepage uses a plain responsive black-and-white treatment with a blue email', () => {
+  assert.match(indexCss, /background:\s*#fff/);
+  assert.match(indexCss, /color:\s*#000/);
+  assert.match(indexCss, /font-family:\s*Arial, Helvetica, sans-serif/);
+  assert.match(appCss, /max-width:\s*720px/);
+  assert.match(appCss, /\.contact\s+a\s*\{[^}]*color:\s*#0000ee/s);
+  assert.match(appCss, /@media\s*\(max-width:\s*600px\)/);
+});

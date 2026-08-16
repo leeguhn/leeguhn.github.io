@@ -1,18 +1,43 @@
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+.profile {
+  max-width: 720px;
+  padding: 64px 48px 80px;
 }
 
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+.profile h1 {
+  margin: 0 0 32px;
+  font-size: 32px;
+  line-height: 1.2;
 }
 
-#root {
-  width: 100%;
-  height: 100vh;
+.profile p {
+  margin: 0 0 20px;
+}
+
+.profile ol {
+  margin: 0 0 20px;
+  padding-left: 24px;
+}
+
+.profile li {
+  margin-bottom: 6px;
+}
+
+.profile .contact {
+  margin-top: 40px;
+  margin-bottom: 0;
+}
+
+.contact a {
+  color: #0000ee;
+}
+
+@media (max-width: 600px) {
+  .profile {
+    padding: 32px 24px 48px;
+  }
+
+  .profile h1 {
+    font-size: 28px;
+    margin-bottom: 24px;
+  }
 }
