@@ -45,17 +45,25 @@ function App() {
         <h2 id="publications-heading">Publications</h2>
 
         <p className="publication">
-          <a href="https://dl.acm.org/doi/10.1145/3772363.3798859">
-            Ambient Witness: Repurposing the Language Barrier as a Covert
-            Safety Net in Domestic and Workplace Conflicts
-          </a>{' '}
-          (CHI 2026 Early Abstracts)
-        </p>
-
-        <p className="publication">
           DioramaCraft: A Human-AI Workflow for Transforming Personal
           Photographs into Layered Paper Theater Dioramas (UIST 2026 Adjunct,
           forthcoming)
+        </p>
+
+        <p className="publication">
+          Ambient Witness: Repurposing the Language Barrier as a Covert Safety
+          Net in Domestic and Workplace Conflicts (CHI 2026 Early Abstracts){' '}
+          <a href="https://dl.acm.org/doi/10.1145/3772363.3798859">
+            [paper]
+          </a>
+        </p>
+
+        <p className="publication">
+          Passthrough Interpretive Assistant: Revealing Hidden Intent and Bias
+          in eXtended Reality with AI (HCI Korea 2026){' '}
+          <a href="https://make.kaist.ac.kr/files/2026/LeeG_Bias_KHCI26.pdf">
+            [paper]
+          </a>
         </p>
       </section>
     </main>

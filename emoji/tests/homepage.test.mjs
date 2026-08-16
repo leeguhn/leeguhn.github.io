@@ -42,16 +42,33 @@ test('homepage uses a plain responsive black-and-white treatment with a blue ema
   assert.match(appCss, /@media\s*\(max-width:\s*600px\)/);
 });
 
-test('homepage lists the two approved publications after the contact address', () => {
+test('homepage lists the three approved publications in reverse chronological order', () => {
   const visibleText = app.replace(/\s+/g, ' ');
   const contactPosition = visibleText.indexOf('leeguhn@kaist.ac.kr');
   const publicationsPosition = visibleText.indexOf('Publications');
+  const dioramaPosition = visibleText.indexOf('DioramaCraft:');
+  const ambientPosition = visibleText.indexOf('Ambient Witness:');
+  const passthroughPosition = visibleText.indexOf('Passthrough Interpretive Assistant:');
 
   assert.ok(publicationsPosition > contactPosition);
-  assert.match(visibleText, /Ambient Witness: Repurposing the Language Barrier as a Covert Safety Net in Domestic and Workplace Conflicts/);
-  assert.match(visibleText, /CHI 2026 Early Abstracts/);
-  assert.match(visibleText, /href="https:\/\/dl\.acm\.org\/doi\/10\.1145\/3772363\.3798859"/);
+  assert.ok(dioramaPosition > publicationsPosition);
+  assert.ok(ambientPosition > dioramaPosition);
+  assert.ok(passthroughPosition > ambientPosition);
+
   assert.match(visibleText, /DioramaCraft: A Human-AI Workflow for Transforming Personal Photographs into Layered Paper Theater Dioramas/);
   assert.match(visibleText, /UIST 2026 Adjunct, forthcoming/);
+  assert.match(visibleText, /Ambient Witness: Repurposing the Language Barrier as a Covert Safety Net in Domestic and Workplace Conflicts/);
+  assert.match(visibleText, /CHI 2026 Early Abstracts/);
+  assert.match(visibleText, /Passthrough Interpretive Assistant: Revealing Hidden Intent and Bias in eXtended Reality with AI/);
+  assert.match(visibleText, /HCI Korea 2026/);
   assert.match(appCss, /\.publications h2\s*\{[^}]*border-bottom:\s*1px solid #000/s);
+});
+
+test('publication links label only the paper references', () => {
+  const visibleText = app.replace(/\s+/g, ' ');
+
+  assert.doesNotMatch(visibleText, /<a[^>]*>\s*Ambient Witness:/);
+  assert.doesNotMatch(visibleText, /<a[^>]*>\s*Passthrough Interpretive Assistant:/);
+  assert.match(visibleText, /\(CHI 2026 Early Abstracts\).*?<a href="https:\/\/dl\.acm\.org\/doi\/10\.1145\/3772363\.3798859">\s*\[paper\]\s*<\/a>/);
+  assert.match(visibleText, /\(HCI Korea 2026\).*?<a href="https:\/\/make\.kaist\.ac\.kr\/files\/2026\/LeeG_Bias_KHCI26\.pdf">\s*\[paper\]\s*<\/a>/);
 });
