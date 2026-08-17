@@ -4193,7 +4193,7 @@ void main() {
     </style>
   </head>
   <body>${t.svg}</body>
-</html>`}function GT(t,e,n=document){n.querySelector(zT)?.remove();const i=n.createElement("iframe");return i.dataset.fabricationPrint="",i.title="A4 fabrication print surface",i.setAttribute("aria-hidden","true"),Object.assign(i.style,{position:"fixed",width:"1px",height:"1px",right:"0",bottom:"0",border:"0",opacity:"0",pointerEvents:"none"}),i.srcdoc=HT(t,e),i.addEventListener("load",()=>{const s=i.contentWindow;s&&(s.focus(),s.print())},{once:!0}),n.body.append(i),i}function WT(t){return t.replace(/[&<>"]/g,e=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[e])}const lu={points:[],segments:[],faces:[]},Ur={width:1.2,stepCount:7,stepRun:.32,stepRise:.32,hostWidth:4,hostFloorExtent:2.56,hostWallExtent:2.56},$T={height:1,length:2,width:5};function XT(t){t.innerHTML=`
+</html>`}function GT(t,e,n=document){n.querySelector(zT)?.remove();const i=n.createElement("iframe");return i.dataset.fabricationPrint="",i.title="A4 fabrication print surface",i.setAttribute("aria-hidden","true"),Object.assign(i.style,{position:"fixed",width:"1px",height:"1px",right:"0",bottom:"0",border:"0",opacity:"0",pointerEvents:"none"}),i.srcdoc=HT(t,e),i.addEventListener("load",()=>{const s=i.contentWindow;s&&(s.focus(),s.print())},{once:!0}),n.body.append(i),i}function WT(t){return t.replace(/[&<>"]/g,e=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[e])}const lu={points:[],segments:[],faces:[]},Ur={width:1.2,stepCount:7,stepRun:.32,stepRise:.32,hostWidth:4,hostFloorExtent:2.56,hostWallExtent:2.56},$T={height:.2,length:2,width:4.5};function XT(t){t.innerHTML=`
     <main class="lab-shell">
       <header class="lab-header">
         <div>
@@ -4213,7 +4213,7 @@ void main() {
           <div class="stair-strategy-list"></div>
           <small>Play the same topology from flat pattern to deployed stair.</small>
         </details>
-        <details class="sidebar-group stair-study">
+        <details class="sidebar-group stair-study" open>
           <summary><h2>Continuous surfaces</h2><span>3</span></summary>
           <p>Surface-bearing architectural units</p>
           <div class="stair-strategy-list module-list"></div>
