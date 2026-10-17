@@ -7,14 +7,15 @@ const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
 const appCss = await readFile(new URL('../src/App.css', import.meta.url), 'utf8');
 const indexCss = await readFile(new URL('../src/index.css', import.meta.url), 'utf8');
 
-test('homepage contains the revised profile and contact link', () => {
+test('homepage contains the preferred profile and contact link', () => {
   const visibleText = app.replace(/\s+/g, ' ');
   assert.match(visibleText, /Guhn Lee/);
   assert.match(visibleText, /second-year master/);
-  assert.match(visibleText, /interactive tools for artists and makers/);
+  assert.match(visibleText, /interested in designing interactive systems and tools that support creative practice/);
+  assert.match(visibleText, /In particular, I am exploring how to:/);
   assert.match(visibleText, /lower technical barriers to creative production/);
-  assert.match(visibleText, /break down ways of working into layers of technique, perception, and judgment that can be examined and recombined/);
-  assert.match(visibleText, /rethink how AI learns and interacts with people, taking cues from artistic training to help them test possibilities, question habits, and refine their own vision/);
+  assert.match(visibleText, /break down ways of working into layers of technique, perception, and judgment that can be studied and remixed/);
+  assert.match(visibleText, /and reexamine how AI can be trained and designed to support the creative process more deeply/);
   assert.match(visibleText, /MFA in Visual Arts from the University of Chicago/);
   assert.match(visibleText, /art, computer science, and linguistics at Grinnell College/);
   assert.match(visibleText, /href="mailto:leeguhn@kaist\.ac\.kr"/);
@@ -46,7 +47,7 @@ test('homepage uses CMU Serif with a plain responsive treatment and a blue email
 });
 
 test('homepage lists publications in the requested order', () => {
-  const visibleText = app.replace(/\s+/g, ' ');
+  const visibleText = app.replace(/<\/?strong>/g, '').replace(/\{' '\}/g, ' ').replace(/\s+/g, ' ');
   const contactPosition = visibleText.indexOf('leeguhn@kaist.ac.kr');
   const publicationsPosition = visibleText.indexOf('Publications');
   const moduFoldPosition = visibleText.indexOf('ModuFold:');
@@ -70,6 +71,7 @@ test('homepage lists publications in the requested order', () => {
   assert.match(visibleText, /CHI 2026 Early Abstracts/);
   assert.match(visibleText, /Passthrough Interpretive Assistant: Revealing Hidden Intent and Bias in eXtended Reality with AI/);
   assert.match(visibleText, /HCI Korea 2026/);
+  assert.equal((app.match(/<strong>/g) || []).length, 5);
   assert.match(appCss, /\.publications h2\s*\{[^}]*border-bottom:\s*1px solid #000/s);
 });
 

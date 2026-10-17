@@ -12,20 +12,19 @@ function App() {
       </p>
 
       <p>
-        I study and design interactive tools for artists and makers. My work
-        asks how to:
+        I am interested in designing interactive systems and tools that
+        support creative practice. In particular, I am exploring how to:
       </p>
 
       <ol>
         <li>lower technical barriers to creative production;</li>
         <li>
           break down ways of working into layers of technique, perception, and
-          judgment that can be examined and recombined; and
+          judgment that can be studied and remixed;
         </li>
         <li>
-          rethink how AI learns and interacts with people, taking cues from
-          artistic training to help them test possibilities, question habits,
-          and refine their own vision.
+          and reexamine how AI can be trained and designed to support the
+          creative process more deeply.
         </li>
       </ol>
 
@@ -43,8 +42,8 @@ function App() {
         <h2 id="publications-heading">Publications</h2>
 
         <p className="publication">
-          ModuFold: Semantic Authoring of Origamic Architecture (ACM SCF 2026
-          Demo)
+          <strong>ModuFold: Semantic Authoring of Origamic Architecture</strong>{' '}
+          (ACM SCF 2026 Demo)
         </p>
 
         <p className="publication-authors">
@@ -52,9 +51,11 @@ function App() {
         </p>
 
         <p className="publication">
-          AdapTest: Supporting Designers in Authoring and Evaluating
-          Environmentally Responsive User Interfaces for Extended Reality (ACM
-          ISS 2026)
+          <strong>
+            AdapTest: Supporting Designers in Authoring and Evaluating
+            Environmentally Responsive User Interfaces for Extended Reality
+          </strong>{' '}
+          (ACM ISS 2026)
         </p>
 
         <p className="publication-authors">
@@ -63,9 +64,11 @@ function App() {
         </p>
 
         <p className="publication">
-          DioramaCraft: A Human-AI Workflow for Transforming Personal
-          Photographs into Layered Paper Theater Dioramas (UIST 2026 Adjunct,
-          forthcoming)
+          <strong>
+            DioramaCraft: A Human-AI Workflow for Transforming Personal
+            Photographs into Layered Paper Theater Dioramas
+          </strong>{' '}
+          (UIST 2026 Adjunct, forthcoming)
         </p>
 
         <p className="publication-authors">
@@ -73,8 +76,11 @@ function App() {
         </p>
 
         <p className="publication">
-          Ambient Witness: Repurposing the Language Barrier as a Covert Safety
-          Net in Domestic and Workplace Conflicts (CHI 2026 Early Abstracts){' '}
+          <strong>
+            Ambient Witness: Repurposing the Language Barrier as a Covert Safety
+            Net in Domestic and Workplace Conflicts
+          </strong>{' '}
+          (CHI 2026 Early Abstracts){' '}
           <a href="https://dl.acm.org/doi/10.1145/3772363.3798859">
             [paper]
           </a>
@@ -85,8 +91,11 @@ function App() {
         </p>
 
         <p className="publication">
-          Passthrough Interpretive Assistant: Revealing Hidden Intent and Bias
-          in eXtended Reality with AI (HCI Korea 2026){' '}
+          <strong>
+            Passthrough Interpretive Assistant: Revealing Hidden Intent and Bias
+            in eXtended Reality with AI
+          </strong>{' '}
+          (HCI Korea 2026){' '}
           <a href="https://make.kaist.ac.kr/files/2026/LeeG_Bias_KHCI26.pdf">
             [paper]
           </a>

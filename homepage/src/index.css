@@ -49,4 +49,20 @@ body {
 
 #root {
   min-height: 100vh;
+  opacity: 1;
+  transition: opacity 200ms ease-in;
+}
+
+.fonts-loading #root {
+  opacity: 0;
+}
+
+.fonts-fallback body {
+  font-family: Georgia, serif;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #root {
+    transition: none;
+  }
 }
