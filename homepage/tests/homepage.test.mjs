@@ -34,11 +34,11 @@ test('homepage no longer exposes the chatbot experiment interface', () => {
   assert.match(html, /<title>Guhn Lee<\/title>/);
 });
 
-test('homepage uses CMU Serif with a plain responsive treatment and a blue email', () => {
+test('homepage uses Google Sans with a plain responsive treatment and a blue email', () => {
   assert.match(indexCss, /background:\s*#fff/);
   assert.match(indexCss, /color:\s*#000/);
-  assert.match(indexCss, /font-family:\s*'CMU Serif', Georgia, serif/);
-  for (const face of ['cmunrm', 'cmunbx', 'cmunti', 'cmunbi']) {
+  assert.match(indexCss, /font-family:\s*'Google Sans', Arial, Helvetica, sans-serif/);
+  for (const face of ['GoogleSans-Regular', 'GoogleSans-Bold', 'GoogleSans-Italic', 'GoogleSans-BoldItalic']) {
     assert.match(indexCss, new RegExp(`assets/fonts/${face}\\.woff2`));
   }
   assert.match(appCss, /max-width:\s*720px/);

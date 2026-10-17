@@ -27,8 +27,8 @@ if (document.fonts) {
   const timeout = window.setTimeout(() => finish(true), 2000);
 
   Promise.all([
-    document.fonts.load('400 16px "CMU Serif"'),
-    document.fonts.load('700 16px "CMU Serif"'),
+    document.fonts.load('400 16px "Google Sans"'),
+    document.fonts.load('700 16px "Google Sans"'),
   ])
     .then((faces) => finish(faces.some((face) => face.length === 0)))
     .catch(() => finish(true));
