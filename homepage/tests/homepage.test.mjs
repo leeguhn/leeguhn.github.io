@@ -42,19 +42,25 @@ test('homepage uses a plain responsive black-and-white treatment with a blue ema
   assert.match(appCss, /@media\s*\(max-width:\s*600px\)/);
 });
 
-test('homepage lists the three approved publications in reverse chronological order', () => {
+test('homepage lists publications in the requested order', () => {
   const visibleText = app.replace(/\s+/g, ' ');
   const contactPosition = visibleText.indexOf('leeguhn@kaist.ac.kr');
   const publicationsPosition = visibleText.indexOf('Publications');
+  const moduFoldPosition = visibleText.indexOf('ModuFold:');
+  const adapTestPosition = visibleText.indexOf('AdapTest:');
   const dioramaPosition = visibleText.indexOf('DioramaCraft:');
   const ambientPosition = visibleText.indexOf('Ambient Witness:');
   const passthroughPosition = visibleText.indexOf('Passthrough Interpretive Assistant:');
 
   assert.ok(publicationsPosition > contactPosition);
-  assert.ok(dioramaPosition > publicationsPosition);
+  assert.ok(moduFoldPosition > publicationsPosition);
+  assert.ok(adapTestPosition > moduFoldPosition);
+  assert.ok(dioramaPosition > adapTestPosition);
   assert.ok(ambientPosition > dioramaPosition);
   assert.ok(passthroughPosition > ambientPosition);
 
+  assert.match(visibleText, /ModuFold: Semantic Authoring of Origamic Architecture \(ACM SCF 2026 Demo\)/);
+  assert.match(visibleText, /AdapTest: Supporting Designers in Authoring and Evaluating Environmentally Responsive User Interfaces for Extended Reality \(ACM ISS 2026\)/);
   assert.match(visibleText, /DioramaCraft: A Human-AI Workflow for Transforming Personal Photographs into Layered Paper Theater Dioramas/);
   assert.match(visibleText, /UIST 2026 Adjunct, forthcoming/);
   assert.match(visibleText, /Ambient Witness: Repurposing the Language Barrier as a Covert Safety Net in Domestic and Workplace Conflicts/);
@@ -78,6 +84,14 @@ test('each publication displays its authors in the approved order', () => {
 
   assert.match(
     visibleText,
+    /ModuFold:.*?Guhn Lee\*, Jaewon You\*, Haeri Kim, Andrea Bianchi.*?AdapTest:/,
+  );
+  assert.match(
+    visibleText,
+    /AdapTest:.*?Jungwoo Rhee, Guhn Lee, Yumin Jung, Mustafa Doga Dogan, Justin Moon, Andrea Bianchi.*?DioramaCraft:/,
+  );
+  assert.match(
+    visibleText,
     /DioramaCraft:.*?Guhn Lee, Heejin Kim, Jiyoon Lee, Donggun Lee, Tak Yeon Lee.*?Ambient Witness:/,
   );
   assert.match(
@@ -88,5 +102,5 @@ test('each publication displays its authors in the approved order', () => {
     visibleText,
     /Passthrough Interpretive Assistant:.*?Guhn Lee, Anam Ahmad Khan, Andrea Bianchi/,
   );
-  assert.equal((app.match(/className="publication-authors"/g) || []).length, 3);
+  assert.equal((app.match(/className="publication-authors"/g) || []).length, 5);
 });

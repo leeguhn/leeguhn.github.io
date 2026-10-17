@@ -46,6 +46,26 @@ function App() {
         <h2 id="publications-heading">Publications</h2>
 
         <p className="publication">
+          ModuFold: Semantic Authoring of Origamic Architecture (ACM SCF 2026
+          Demo)
+        </p>
+
+        <p className="publication-authors">
+          Guhn Lee*, Jaewon You*, Haeri Kim, Andrea Bianchi
+        </p>
+
+        <p className="publication">
+          AdapTest: Supporting Designers in Authoring and Evaluating
+          Environmentally Responsive User Interfaces for Extended Reality (ACM
+          ISS 2026)
+        </p>
+
+        <p className="publication-authors">
+          Jungwoo Rhee, Guhn Lee, Yumin Jung, Mustafa Doga Dogan, Justin Moon,
+          Andrea Bianchi
+        </p>
+
+        <p className="publication">
           DioramaCraft: A Human-AI Workflow for Transforming Personal
           Photographs into Layered Paper Theater Dioramas (UIST 2026 Adjunct,
           forthcoming)
