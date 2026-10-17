@@ -12,25 +12,22 @@ function App() {
       </p>
 
       <p>
-        I am interested in designing interactive systems and tools that
-        support creative practice. In particular, I explore how such systems
-        can:
+        I study and design interactive tools for artists and makers. My work
+        asks how to:
       </p>
 
       <ol>
         <li>lower technical barriers to creative production;</li>
-        <li>help people reason with space and time as materials for design;</li>
         <li>
-          and function as scaffolds that enable users to focus on aspects where
-          imagination and personal authorship can come to life.
+          break down ways of working into layers of technique, perception, and
+          judgment that can be examined and recombined; and
+        </li>
+        <li>
+          rethink how AI learns and interacts with people, taking cues from
+          artistic training to help them test possibilities, question habits,
+          and refine their own vision.
         </li>
       </ol>
-
-      <p>
-        More broadly, I am interested in how interfaces can help people work
-        meaningfully with constraints and translate ideas into tangible or
-        interactive forms.
-      </p>
 
       <p>
         Prior to my current program, I received an MFA in Visual Arts from the

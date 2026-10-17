@@ -7,14 +7,14 @@ const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
 const appCss = await readFile(new URL('../src/App.css', import.meta.url), 'utf8');
 const indexCss = await readFile(new URL('../src/index.css', import.meta.url), 'utf8');
 
-test('homepage contains the complete approved profile and contact link', () => {
+test('homepage contains the revised profile and contact link', () => {
   const visibleText = app.replace(/\s+/g, ' ');
   assert.match(visibleText, /Guhn Lee/);
   assert.match(visibleText, /second-year master/);
+  assert.match(visibleText, /interactive tools for artists and makers/);
   assert.match(visibleText, /lower technical barriers to creative production/);
-  assert.match(visibleText, /reason with space and time as materials for design/);
-  assert.match(visibleText, /function as scaffolds that enable users to focus on aspects where imagination and personal authorship can come to life/);
-  assert.match(visibleText, /interfaces can help people work meaningfully with constraints and translate ideas into tangible or interactive forms/);
+  assert.match(visibleText, /break down ways of working into layers of technique, perception, and judgment that can be examined and recombined/);
+  assert.match(visibleText, /rethink how AI learns and interacts with people, taking cues from artistic training to help them test possibilities, question habits, and refine their own vision/);
   assert.match(visibleText, /MFA in Visual Arts from the University of Chicago/);
   assert.match(visibleText, /art, computer science, and linguistics at Grinnell College/);
   assert.match(visibleText, /href="mailto:leeguhn@kaist\.ac\.kr"/);
