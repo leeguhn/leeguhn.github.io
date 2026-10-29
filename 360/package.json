@@ -1,0 +1,7 @@
+{
+  "name": "etri-study1-cue-testbed",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": { "dev": "node dev-server.mjs", "test": "node --test *.test.mjs" }
+}
