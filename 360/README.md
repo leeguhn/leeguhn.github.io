@@ -1,7 +1,7 @@
 # Study 1 cue test bed
 
 A standalone, local demonstration of the current Study 1 cue combinations.
-The supplied one- and two-object mockups define the layout. Imported from `7102.ETRI_2026` branch `study1-web`, commit `5352123`.
+The supplied mockups guided the layout; the initial two-object scene retains its reference positions. Imported from `7102.ETRI_2026` branch `study1-web`, commit `5352123`.
 This replaces the active interface only. The earlier sandbox code and preserved
 `v1.0/` remain in this folder and Git history; they are not loaded by this page.
 
@@ -28,8 +28,8 @@ load the JavaScript modules and bundled speech recordings.
 - Click the bottom-right light bulb to hide both views behind an opaque gray layer. Click it again to restore the clear scene. The bulb is yellow while the layer is active and gray otherwise.
 - Shuffle samples all four properties and new object positions, then resets the
   head direction to radar-up. A randomly sampled property may retain its old value.
-  Changing object count after a shuffle shows or hides the same fixed objects;
-  only another shuffle chooses new positions.
+  Changing object count shows or hides objects from the current fixed layout,
+  including before the first shuffle. Only Shuffle chooses new positions.
 - Scheduling is disabled with one object; its previous choice returns with two or
   three. The 20 distinct study combinations are available.
 

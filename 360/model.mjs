@@ -27,27 +27,25 @@ function objectAt(index, angle, radius) {
 }
 
 function preset(count) {
-  const positions = {
-    // The one-object reference is closer; all presets keep the same world size.
-    1: [[0, 1.5]],
-    2: [[-30, 2], [30, 2]],
-    3: [[-30, 2.5], [0, 1.5], [30, 2.5]],
-  };
-  return positions[count].map(([degrees, radius], index) => objectAt(index, degrees * Math.PI / 180, radius));
+  // Keep the initial two-object reference. Count changes only reveal or hide
+  // objects from this one fixed three-object formation.
+  const positions = [[-30, 2], [30, 2], [0, 1.5]];
+  return positions.slice(0, count).map(([degrees, radius], index) => objectAt(index, degrees * Math.PI / 180, radius));
 }
 
 export function createState({ count = 2 } = {}) {
   if (!OPTIONS.count.includes(count)) throw new RangeError('Object count must be 1, 2 or 3.');
-  return { cue: 'verbal', trigger: 'automatic', count, schedule: 'sequential', heading: 0, objects: preset(count), mainView: 'pov', shuffledLayout: null };
+  const layout = preset(3);
+  return { cue: 'verbal', trigger: 'automatic', count, schedule: 'sequential', heading: 0, objects: layout.slice(0, count), mainView: 'pov', layout };
 }
 
-/** Count changes show more or fewer objects from one fixed shuffled layout. */
+/** Count changes show more or fewer objects from one fixed layout. */
 export function cycle(state, key) {
   const options = OPTIONS[key];
   if (!options) throw new RangeError(`Unknown study property: ${key}`);
   if (key === 'schedule' && state.count === 1) return state;
   const next = options[(options.indexOf(state[key]) + 1) % options.length];
-  return { ...state, [key]: next, ...(key === 'count' ? { objects: state.shuffledLayout ? state.shuffledLayout.slice(0, next) : preset(next) } : {}) };
+  return { ...state, [key]: next, ...(key === 'count' ? { objects: state.layout.slice(0, next) } : {}) };
 }
 
 function fraction(random) {
@@ -98,8 +96,8 @@ export function shuffle(state, random = Math.random) {
   const trigger = choose(OPTIONS.trigger, random);
   const count = choose(OPTIONS.count, random);
   const schedule = choose(OPTIONS.schedule, random);
-  const shuffledLayout = randomObjects(3, random);
-  return { ...state, cue, trigger, count, schedule, heading: 0, objects: shuffledLayout.slice(0, count), shuffledLayout };
+  const layout = randomObjects(3, random);
+  return { ...state, cue, trigger, count, schedule, heading: 0, objects: layout.slice(0, count), layout };
 }
 
 export function rotate(state, delta) {
