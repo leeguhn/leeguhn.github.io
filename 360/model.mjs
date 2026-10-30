@@ -38,16 +38,16 @@ function preset(count) {
 
 export function createState({ count = 2 } = {}) {
   if (!OPTIONS.count.includes(count)) throw new RangeError('Object count must be 1, 2 or 3.');
-  return { cue: 'verbal', trigger: 'automatic', count, schedule: 'sequential', heading: 0, objects: preset(count), mainView: 'pov', shuffled: false };
+  return { cue: 'verbal', trigger: 'automatic', count, schedule: 'sequential', heading: 0, objects: preset(count), mainView: 'pov', shuffledLayout: null };
 }
 
-/** Property changes leave the scene fixed, except when the object count changes. */
-export function cycle(state, key, random = Math.random) {
+/** Count changes show more or fewer objects from one fixed shuffled layout. */
+export function cycle(state, key) {
   const options = OPTIONS[key];
   if (!options) throw new RangeError(`Unknown study property: ${key}`);
   if (key === 'schedule' && state.count === 1) return state;
   const next = options[(options.indexOf(state[key]) + 1) % options.length];
-  return { ...state, [key]: next, ...(key === 'count' ? { objects: state.shuffled ? randomObjects(next, random) : preset(next) } : {}) };
+  return { ...state, [key]: next, ...(key === 'count' ? { objects: state.shuffledLayout ? state.shuffledLayout.slice(0, next) : preset(next) } : {}) };
 }
 
 function fraction(random) {
@@ -60,10 +60,11 @@ const choose = (options, random) => options[Math.floor(fraction(random) * option
 function randomObjects(count, random) {
   const objects = [];
   const usedBearings = new Set();
-  const defaults = preset(count);
+  const defaults = [1, 2, 3].map(preset);
   const minimumSeparation = CYLINDER_RADIUS * 2 + 0.08;
   const clear = candidate => objects.every(other => Math.hypot(candidate.x - other.x, candidate.z - other.z) >= minimumSeparation);
-  const nonDefault = (candidate, index) => Math.hypot(candidate.x - defaults[index].x, candidate.z - defaults[index].z) > 1e-10;
+  const nonDefault = (candidate, index) => defaults.every(layout =>
+    !layout[index] || Math.hypot(candidate.x - layout[index].x, candidate.z - layout[index].z) > 1e-10);
   for (let index = 0; index < count; index++) {
     let candidate, bearingIndex;
     for (let attempt = 0; attempt < 48; attempt++) {
@@ -97,7 +98,8 @@ export function shuffle(state, random = Math.random) {
   const trigger = choose(OPTIONS.trigger, random);
   const count = choose(OPTIONS.count, random);
   const schedule = choose(OPTIONS.schedule, random);
-  return { ...state, cue, trigger, count, schedule, heading: 0, objects: randomObjects(count, random), shuffled: true };
+  const shuffledLayout = randomObjects(3, random);
+  return { ...state, cue, trigger, count, schedule, heading: 0, objects: shuffledLayout.slice(0, count), shuffledLayout };
 }
 
 export function rotate(state, delta) {

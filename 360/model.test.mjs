@@ -21,7 +21,7 @@ test('presets share cylinder dimensions, with the single object closer to match 
     assert.equal(state.trigger, 'automatic');
     assert.equal(state.schedule, 'sequential');
     assert.equal(state.mainView, 'pov');
-    assert.equal(state.shuffled, false);
+    assert.equal(state.shuffledLayout, null);
     assert.equal(state.heading, 0);
     assert.equal(state.count, count);
     assert.equal(state.objects.length, count);
@@ -108,40 +108,43 @@ test('shuffling uses unique global clock bearings, nondefault positions and half
     const state = shuffle(initial, random);
     assert.equal(state.heading, 0);
     assert.equal(state.mainView, 'radar');
-    assert.equal(state.shuffled, true);
+    assert.equal(state.shuffledLayout.length, 3);
     assert.equal(state.objects.length, state.count);
+    state.objects.forEach((object, index) => assert.strictEqual(object, state.shuffledLayout[index]));
     assert.ok(state.count >= 1 && state.count <= 3);
     encountered.add(`${state.cue}/${state.trigger}/${state.count}/${state.count === 1 ? 'single' : state.schedule}`);
     const bearings = new Set();
-    const defaults = createState({ count: state.count }).objects;
-    state.objects.forEach((object, i) => {
+    const defaults = [1, 2, 3].map(count => createState({ count }).objects);
+    state.shuffledLayout.forEach((object, i) => {
       const r = distance(object);
       assert.ok(r >= RING_STEP - 1e-10 && r <= MAX_DISTANCE + 1e-10);
       close(r / RING_STEP, Math.round(r / RING_STEP));
       const slot = bearing(object, 0) / (Math.PI / 6);
       close(slot, Math.round(slot));
       bearings.add(Math.round(slot));
-      assert.ok(Math.hypot(object.x - defaults[i].x, object.z - defaults[i].z) > 1e-10);
+      for (const layout of defaults) if (layout[i]) assert.ok(Math.hypot(object.x - layout[i].x, object.z - layout[i].z) > 1e-10);
       assert.equal(object.color, COLORS[i]);
       quadrants.add(`${object.x >= 0}/${object.z >= 0}`);
-      for (const other of state.objects.slice(i + 1)) assert.ok(Math.hypot(object.x - other.x, object.z - other.z) >= CYLINDER_RADIUS * 2);
+      for (const other of state.shuffledLayout.slice(i + 1)) assert.ok(Math.hypot(object.x - other.x, object.z - other.z) >= CYLINDER_RADIUS * 2);
     });
-    assert.equal(bearings.size, state.count);
+    assert.equal(bearings.size, 3);
   }
   assert.equal(encountered.size, 20);
   assert.equal(quadrants.size, 4);
   assert.equal(initial.heading, 1.2);
 });
 
-test('count changes keep shuffled scenes off the presets and on distinct clock bearings', () => {
+test('count changes show and hide one fixed shuffled layout without moving objects', () => {
   let state = shuffle(createState({ count: 3 }), () => .999999);
+  const layout = state.shuffledLayout;
   for (const expectedCount of [1, 2, 3, 1, 2]) {
-    state = cycle(state, 'count', () => 0);
+    state = cycle(state, 'count');
     assert.equal(state.count, expectedCount);
-    assert.equal(state.shuffled, true);
+    assert.strictEqual(state.shuffledLayout, layout);
     const defaults = createState({ count: expectedCount }).objects;
     const bearings = new Set();
     state.objects.forEach((object, index) => {
+      assert.strictEqual(object, layout[index]);
       assert.ok(Math.hypot(object.x - defaults[index].x, object.z - defaults[index].z) > 1e-10);
       const slot = bearing(object, 0) / (Math.PI / 6);
       close(slot, Math.round(slot));
@@ -149,14 +152,19 @@ test('count changes keep shuffled scenes off the presets and on distinct clock b
     });
     assert.equal(bearings.size, expectedCount);
   }
+  for (const key of ['cue', 'trigger', 'schedule']) {
+    const next = cycle(state, key);
+    assert.strictEqual(next.shuffledLayout, layout);
+    assert.strictEqual(next.objects, state.objects);
+  }
 });
 
 test('a constant random source cannot cause infinite placement retries or overlapping cylinders', () => {
   for (const value of [0, .5, .999999, 1]) {
     const state = shuffle(createState(), () => value);
     assert.ok(state.objects.length >= 1 && state.objects.length <= 3);
-    for (let i = 0; i < state.objects.length; i++) for (let j = i + 1; j < state.objects.length; j++) {
-      assert.ok(Math.hypot(state.objects[i].x - state.objects[j].x, state.objects[i].z - state.objects[j].z) >= CYLINDER_RADIUS * 2);
+    for (let i = 0; i < state.shuffledLayout.length; i++) for (let j = i + 1; j < state.shuffledLayout.length; j++) {
+      assert.ok(Math.hypot(state.shuffledLayout[i].x - state.shuffledLayout[j].x, state.shuffledLayout[i].z - state.shuffledLayout[j].z) >= CYLINDER_RADIUS * 2);
     }
   }
 });

@@ -28,8 +28,8 @@ load the JavaScript modules and bundled speech recordings.
 - Click the bottom-right light bulb to hide both views behind an opaque gray layer. Click it again to restore the clear scene. The bulb is yellow while the layer is active and gray otherwise.
 - Shuffle samples all four properties and new object positions, then resets the
   head direction to radar-up. A randomly sampled property may retain its old value.
-  Changing object count after a shuffle redraws randomized positions rather than
-  restoring the front-facing presets.
+  Changing object count after a shuffle shows or hides the same fixed objects;
+  only another shuffle chooses new positions.
 - Scheduling is disabled with one object; its previous choice returns with two or
   three. The 20 distinct study combinations are available.
 
