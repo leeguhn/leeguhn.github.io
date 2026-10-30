@@ -9,6 +9,7 @@ export const CYLINDER_HEIGHT = 0.8;
 export const CYLINDER_RADIUS = 0.26;
 
 const TAU = Math.PI * 2;
+const CLOCK_STEP = TAU / 12;
 const OPTIONS = Object.freeze({
   cue: ['verbal', 'nonverbal'],
   trigger: ['automatic', 'requested'],
@@ -30,14 +31,14 @@ function preset(count) {
     // The one-object reference is closer; all presets keep the same world size.
     1: [[0, 1.5]],
     2: [[-30, 2], [30, 2]],
-    3: [[-40, 2.5], [0, 1.5], [40, 2.5]],
+    3: [[-30, 2.5], [0, 1.5], [30, 2.5]],
   };
   return positions[count].map(([degrees, radius], index) => objectAt(index, degrees * Math.PI / 180, radius));
 }
 
 export function createState({ count = 2 } = {}) {
   if (!OPTIONS.count.includes(count)) throw new RangeError('Object count must be 1, 2 or 3.');
-  return { cue: 'verbal', trigger: 'automatic', count, schedule: 'sequential', heading: 0, objects: preset(count), mainView: 'pov' };
+  return { cue: 'verbal', trigger: 'automatic', count, schedule: 'sequential', heading: 0, objects: preset(count), mainView: 'pov', shuffled: false };
 }
 
 /** Property changes leave the scene fixed, except when the object count changes. */
@@ -46,7 +47,7 @@ export function cycle(state, key, random = Math.random) {
   if (!options) throw new RangeError(`Unknown study property: ${key}`);
   if (key === 'schedule' && state.count === 1) return state;
   const next = options[(options.indexOf(state[key]) + 1) % options.length];
-  return { ...state, [key]: next, ...(key === 'count' ? { objects: preset(next) } : {}) };
+  return { ...state, [key]: next, ...(key === 'count' ? { objects: state.shuffled ? randomObjects(next, random) : preset(next) } : {}) };
 }
 
 function fraction(random) {
@@ -58,24 +59,34 @@ const choose = (options, random) => options[Math.floor(fraction(random) * option
 
 function randomObjects(count, random) {
   const objects = [];
+  const usedBearings = new Set();
+  const defaults = preset(count);
   const minimumSeparation = CYLINDER_RADIUS * 2 + 0.08;
   const clear = candidate => objects.every(other => Math.hypot(candidate.x - other.x, candidate.z - other.z) >= minimumSeparation);
+  const nonDefault = (candidate, index) => Math.hypot(candidate.x - defaults[index].x, candidate.z - defaults[index].z) > 1e-10;
   for (let index = 0; index < count; index++) {
-    let candidate;
+    let candidate, bearingIndex;
     for (let attempt = 0; attempt < 48; attempt++) {
+      const nextBearing = Math.floor(fraction(random) * 12);
       const radius = (Math.floor(fraction(random) * (MAX_DISTANCE / RING_STEP)) + 1) * RING_STEP;
-      const next = objectAt(index, fraction(random) * TAU, radius);
-      if (clear(next)) { candidate = next; break; }
+      const next = objectAt(index, nextBearing * CLOCK_STEP, radius);
+      if (!usedBearings.has(nextBearing) && nonDefault(next, index) && clear(next)) {
+        candidate = next; bearingIndex = nextBearing; break;
+      }
     }
     // A bounded deterministic fallback also makes adversarial/constant RNGs safe.
     if (!candidate) {
-      for (let segment = 0; segment < 24; segment++) {
-        const next = objectAt(index, segment * TAU / 24, MAX_DISTANCE);
-        if (clear(next)) { candidate = next; break; }
+      for (let segment = 0; segment < 12 && !candidate; segment++) {
+        if (usedBearings.has(segment)) continue;
+        for (let ring = 1; ring <= MAX_DISTANCE / RING_STEP; ring++) {
+          const next = objectAt(index, segment * CLOCK_STEP, ring * RING_STEP);
+          if (nonDefault(next, index) && clear(next)) { candidate = next; bearingIndex = segment; break; }
+        }
       }
     }
     if (!candidate) throw new Error('Unable to place the requested nonoverlapping objects.');
     objects.push(candidate);
+    usedBearings.add(bearingIndex);
   }
   return objects;
 }
@@ -86,7 +97,7 @@ export function shuffle(state, random = Math.random) {
   const trigger = choose(OPTIONS.trigger, random);
   const count = choose(OPTIONS.count, random);
   const schedule = choose(OPTIONS.schedule, random);
-  return { ...state, cue, trigger, count, schedule, heading: 0, objects: randomObjects(count, random) };
+  return { ...state, cue, trigger, count, schedule, heading: 0, objects: randomObjects(count, random), shuffled: true };
 }
 
 export function rotate(state, delta) {

@@ -14,13 +14,14 @@ test('presets share cylinder dimensions, with the single object closer to match 
   assert.equal(MAX_DISTANCE, 2.5);
   assert.equal(CYLINDER_HEIGHT, .8);
   assert.equal(CYLINDER_RADIUS, .26);
-  const expected = { 1: [[0, 1.5]], 2: [[-30, 2], [30, 2]], 3: [[-40, 2.5], [0, 1.5], [40, 2.5]] };
+  const expected = { 1: [[0, 1.5]], 2: [[-30, 2], [30, 2]], 3: [[-30, 2.5], [0, 1.5], [30, 2.5]] };
   for (const count of [1, 2, 3]) {
     const state = createState({ count });
     assert.equal(state.cue, 'verbal');
     assert.equal(state.trigger, 'automatic');
     assert.equal(state.schedule, 'sequential');
     assert.equal(state.mainView, 'pov');
+    assert.equal(state.shuffled, false);
     assert.equal(state.heading, 0);
     assert.equal(state.count, count);
     assert.equal(state.objects.length, count);
@@ -97,7 +98,7 @@ test('property cycling reaches exactly the 20 distinct study configurations', ()
   assert.equal([...configurations].filter(s => s.includes('/3/')).length, 8);
 });
 
-test('shuffling always returns 1–3 nonoverlapping cylinders on half-metre rings and resets heading only', () => {
+test('shuffling uses unique global clock bearings, nondefault positions and half-metre rings', () => {
   let seed = 42;
   const random = () => ((seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0) / 2 ** 32);
   const initial = { ...rotate(createState(), 1.2), mainView: 'radar' };
@@ -107,21 +108,47 @@ test('shuffling always returns 1–3 nonoverlapping cylinders on half-metre ring
     const state = shuffle(initial, random);
     assert.equal(state.heading, 0);
     assert.equal(state.mainView, 'radar');
+    assert.equal(state.shuffled, true);
     assert.equal(state.objects.length, state.count);
     assert.ok(state.count >= 1 && state.count <= 3);
     encountered.add(`${state.cue}/${state.trigger}/${state.count}/${state.count === 1 ? 'single' : state.schedule}`);
+    const bearings = new Set();
+    const defaults = createState({ count: state.count }).objects;
     state.objects.forEach((object, i) => {
       const r = distance(object);
       assert.ok(r >= RING_STEP - 1e-10 && r <= MAX_DISTANCE + 1e-10);
       close(r / RING_STEP, Math.round(r / RING_STEP));
+      const slot = bearing(object, 0) / (Math.PI / 6);
+      close(slot, Math.round(slot));
+      bearings.add(Math.round(slot));
+      assert.ok(Math.hypot(object.x - defaults[i].x, object.z - defaults[i].z) > 1e-10);
       assert.equal(object.color, COLORS[i]);
       quadrants.add(`${object.x >= 0}/${object.z >= 0}`);
       for (const other of state.objects.slice(i + 1)) assert.ok(Math.hypot(object.x - other.x, object.z - other.z) >= CYLINDER_RADIUS * 2);
     });
+    assert.equal(bearings.size, state.count);
   }
   assert.equal(encountered.size, 20);
   assert.equal(quadrants.size, 4);
   assert.equal(initial.heading, 1.2);
+});
+
+test('count changes keep shuffled scenes off the presets and on distinct clock bearings', () => {
+  let state = shuffle(createState({ count: 3 }), () => .999999);
+  for (const expectedCount of [1, 2, 3, 1, 2]) {
+    state = cycle(state, 'count', () => 0);
+    assert.equal(state.count, expectedCount);
+    assert.equal(state.shuffled, true);
+    const defaults = createState({ count: expectedCount }).objects;
+    const bearings = new Set();
+    state.objects.forEach((object, index) => {
+      assert.ok(Math.hypot(object.x - defaults[index].x, object.z - defaults[index].z) > 1e-10);
+      const slot = bearing(object, 0) / (Math.PI / 6);
+      close(slot, Math.round(slot));
+      bearings.add(Math.round(slot));
+    });
+    assert.equal(bearings.size, expectedCount);
+  }
 });
 
 test('a constant random source cannot cause infinite placement retries or overlapping cylinders', () => {

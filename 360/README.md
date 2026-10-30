@@ -28,6 +28,8 @@ load the JavaScript modules and bundled speech recordings.
 - Click the bottom-right light bulb to hide both views behind an opaque gray layer. Click it again to restore the clear scene. The bulb is yellow while the layer is active and gray otherwise.
 - Shuffle samples all four properties and new object positions, then resets the
   head direction to radar-up. A randomly sampled property may retain its old value.
+  Changing object count after a shuffle redraws randomized positions rather than
+  restoring the front-facing presets.
 - Scheduling is disabled with one object; its previous choice returns with two or
   three. The 20 distinct study combinations are available.
 
@@ -35,8 +37,9 @@ load the JavaScript modules and bundled speech recordings.
 
 Every scene contains one, two or three equal-size cylinders: 0.8 m high, 0.52 m in
 diameter. Colors identify their positions visually; color does not change sound.
-The five radar rings are 0.5 m apart, covering 0.5–2.5 m. Shuffled cylinders can
-appear anywhere around the listener and are placed without intersecting.
+The five radar rings are 0.5 m apart, covering 0.5–2.5 m. Shuffled cylinders use
+the twelve global clock bearings in 30-degree steps, with no two at the same
+bearing. Each object differs from its default position and cylinders do not intersect.
 
 The scene is stationary. World +Z is radar-up / initial forward; +X is right.
 Head rotation changes the camera and the single audio listener, never the objects.
