@@ -5,7 +5,7 @@ import { CueAudio } from './audio.mjs';
 let state = createState(), armed = false, repeatTimer = null, playbackEpoch = 0, enabling = null;
 const $ = id => document.getElementById(id);
 const controls = Object.fromEntries(['cue','trigger','count','schedule'].map(key => [key, $(key)]));
-const status = $('status'), sound = $('sound'), held = new Set();
+const status = $('status'), sound = $('sound'), visibility = $('visibility'), held = new Set();
 const audio = new CueAudio({
   onActivity(ids) {
     sound.classList.toggle('playing', ids.length > 0); sound.dataset.playing = String(ids.length > 0);
@@ -88,10 +88,19 @@ async function soundAction() {
 for (const [key, button] of Object.entries(controls)) button.addEventListener('click', () => { state = cycle(state, key); configurationChanged(); });
 $('shuffle').addEventListener('click', () => { held.clear(); state = shuffle(state); configurationChanged(); });
 sound.addEventListener('click', () => void soundAction());
+visibility.addEventListener('click', () => {
+  const enabled = visibility.getAttribute('aria-pressed') !== 'true';
+  visibility.setAttribute('aria-pressed', String(enabled));
+  $('viewport').dataset.lowVisibility = String(enabled);
+  const label = enabled ? 'Disable low visibility' : 'Enable low visibility';
+  visibility.setAttribute('aria-label', label);
+  visibility.title = label;
+});
 for (const view of ['pov','radar']) $(`${view}View`).querySelector('button').addEventListener('click', () => { state = { ...state, mainView: view }; syncControls(); });
 
 window.addEventListener('keydown', event => {
   if (event.target.matches('input, textarea, select, [contenteditable="true"]')) return;
+  if (event.target === visibility && event.code === 'Space') return;
   const key = event.key.toLowerCase();
   if (key === 'q' || key === 'e' || key === 'arrowleft' || key === 'arrowright') {
     event.preventDefault();

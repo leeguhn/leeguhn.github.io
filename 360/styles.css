@@ -13,13 +13,20 @@ canvas { display: block; width: 100%; height: 100%; }
 .swap-view { position: absolute; inset: 0; width: 100%; height: 100%; background: transparent; border: 0; border-radius: inherit; }
 .swap-view[hidden] { display: none; }
 .swap-view:focus-visible { outline-offset: -6px; }
-.icon-button { position: absolute; z-index: 2; top: 4.6%; width: clamp(44px, 5.4vw, 82px); height: clamp(44px, 5.4vw, 82px); padding: 4px; border: 0; background: white; border-radius: 8px; }
+.visibility-shade { position: absolute; inset: 0; z-index: 5; background: #4b4b4b; opacity: 0; pointer-events: none; }
+.viewport[data-low-visibility="true"] .visibility-shade { opacity: 1; }
+.icon-button { position: absolute; z-index: 6; top: 4.6%; width: clamp(44px, 5.4vw, 82px); height: clamp(44px, 5.4vw, 82px); padding: 4px; border: 0; background: transparent; }
 .icon-button img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.icon-button svg { width: 100%; height: 100%; display: block; }
 .shuffle { left: 3.2%; }
 .sound { right: 2.7%; opacity: .45; }
 .sound.ready { opacity: 1; }
 .sound.playing { opacity: 1; }
 .sound.playing img { filter: invert(14%) sepia(99%) saturate(7411%) hue-rotate(359deg) brightness(103%) contrast(116%); }
+.viewport[data-low-visibility="true"] .shuffle img,
+.viewport[data-low-visibility="true"] .sound:not(.playing) img { filter: invert(1); }
+.visibility { top: auto; right: 2.7%; bottom: 4.6%; color: #777; }
+.visibility[aria-pressed="true"] { color: #e5b900; }
 .properties { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 3vw; min-height: 0; }
 .properties button { background: black; border: 4px solid black; border-radius: clamp(14px, 1.5vw, 23px); color: white; font-size: clamp(17px, 2.56vw, 40px); font-weight: 700; padding: 8px 5px; line-height: 1.1; min-width: 0; }
 .properties button:hover:not(:disabled) { background: #252525; }

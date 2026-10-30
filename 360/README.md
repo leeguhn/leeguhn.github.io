@@ -25,6 +25,7 @@ load the JavaScript modules and bundled speech recordings.
   Space to pause/resume. Requested playback occurs only on a speaker click or Space;
   additional requests during playback are ignored.
 - Click the inset to swap radar and first-person views. R also swaps them.
+- Click the bottom-right light bulb to hide both views behind an opaque gray layer. Click it again to restore the clear scene. The bulb is yellow while the layer is active and gray otherwise.
 - Shuffle samples all four properties and new object positions, then resets the
   head direction to radar-up. A randomly sampled property may retain its old value.
 - Scheduling is disabled with one object; its previous choice returns with two or

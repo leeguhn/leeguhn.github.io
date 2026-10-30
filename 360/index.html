@@ -9,7 +9,7 @@
 </head>
 <body>
   <main class="testbed" aria-label="Study 1 auditory cue test bed">
-    <section class="viewport" aria-label="Scene viewport">
+    <section class="viewport" id="viewport" aria-label="Scene viewport">
       <div class="scene-view primary" id="povView">
         <canvas id="pov" role="img" aria-label="First-person view"></canvas>
         <button class="swap-view" aria-label="Make first-person view the main view" title="Swap views" hidden></button>
@@ -18,11 +18,17 @@
         <canvas id="radar" role="img" aria-label="Radar, each ring is half a metre"></canvas>
         <button class="swap-view" aria-label="Make radar the main view" title="Swap views"></button>
       </div>
+      <div class="visibility-shade" aria-hidden="true"></div>
       <button class="icon-button shuffle" id="shuffle" aria-label="Shuffle properties and objects, reset view" title="Shuffle everything and face forward">
         <img src="assets/icons/shuffle.svg" alt="" draggable="false">
       </button>
       <button class="icon-button sound" id="sound" aria-label="Enable sound" title="Enable sound" aria-keyshortcuts="Space">
         <img src="assets/icons/volume-high.svg" alt="" draggable="false">
+      </button>
+      <button class="icon-button visibility" id="visibility" type="button" aria-label="Enable low visibility" aria-pressed="false" title="Enable low visibility">
+        <svg viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+          <path d="M32 6a19 19 0 0 0-11.7 34c2.3 1.8 3.7 4.4 3.7 7v1h16v-1c0-2.6 1.4-5.2 3.7-7A19 19 0 0 0 32 6Zm-8 47h16M27 59h10" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
       </button>
     </section>
     <nav class="properties" aria-label="Study properties">
