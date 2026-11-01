@@ -1,12 +1,15 @@
 import { clockLabel, distance } from './model.mjs';
+import { snapDistance } from './protocol.mjs';
 
 // Demonstration values only; calibrate before using in a participant study.
 const GAP = 0.18, MASTER_GAIN = 0.4, SPEECH_GAIN = 0.75, SPEECH_JOIN_GAP = 0.055;
 const clipUrl = name => new URL(`./audio/${name}.wav`, import.meta.url);
 
 export function distanceCue(metres) {
-  const p = (Math.max(0.5, Math.min(2.5, metres)) - 0.5) / 2;
-  return { frequency: 1200 - 940 * p, gain: 0.28 - 0.18 * p, duration: 0.18 };
+  const index = Math.round(snapDistance(metres) * 2) - 1;
+  // Log-spaced demo pitches, not a calibrated perceptual standard.
+  const pitches = [1200, 819, 559, 381, 260];
+  return { frequency: pitches[index], gain: 0.2, duration: 0.18 };
 }
 export function cycleOffsets(durations, schedule, gap = GAP) {
   let offset = 0;

@@ -6,6 +6,7 @@
   <meta name="theme-color" content="#ffffff">
   <title>Study 1 · Cue test bed</title>
   <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="assets/icons/shuffle.svg" type="image/svg+xml">
 </head>
 <body>
   <main class="testbed" aria-label="Study 1 auditory cue test bed">
@@ -19,6 +20,14 @@
         <button class="swap-view" aria-label="Make radar the main view" title="Swap views"></button>
       </div>
       <div class="visibility-shade" aria-hidden="true"></div>
+      <canvas id="responses" aria-label="Object response area: click a direction, then a distance" hidden></canvas>
+      <div id="trialHud" class="trial-hud" hidden><strong id="trialTitle"></strong><span id="trialHint"></span></div>
+      <section id="learningPanel" class="learning-panel" aria-label="Learning and practice" hidden>
+        <h2 id="learningTitle"></h2><p id="learningText"></p>
+        <div id="referenceDistances" class="reference-distances"></div>
+        <div class="learning-actions"><button id="learningNext" type="button">Check learning</button><button id="skipLearning" type="button">Skip to trials</button></div>
+      </section>
+      <div id="trialActions" class="trial-actions" hidden><button id="undo" type="button">undo</button><button id="finish" type="button">submit</button></div>
       <button class="icon-button shuffle" id="shuffle" aria-label="Shuffle properties and objects, reset view" title="Shuffle everything and face forward">
         <img src="assets/icons/shuffle.svg" alt="" draggable="false">
       </button>
@@ -38,7 +47,7 @@
       <button id="schedule" aria-label="Playback: sequential. Click to change">sequential</button>
     </nav>
   </main>
-  <footer class="hints"><span>Q / E turn</span><span>Space plays / pauses</span><span>Click inset to swap</span><span>Each ring = 0.5 m</span></footer>
+  <footer class="hints"><span>Q / E turn</span><span id="playHint">Space plays / pauses</span><span id="swapHint">Click inset to swap</span><span id="rangeHint">Each ring = 0.5 m</span><span id="modeHint">Type TEST / STOP to switch modes</span></footer>
   <p id="status" class="sr-only" role="status" aria-live="polite">Click the speaker to enable sound. Headphones recommended.</p>
   <script type="module" src="app.mjs"></script>
 </body>

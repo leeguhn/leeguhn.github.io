@@ -1,90 +1,89 @@
-# Study 1 cue test bed
+# Study 1 cue rehearsal
 
-A standalone, local demonstration of the current Study 1 cue combinations.
-The supplied mockups guided the layout; the initial two-object scene retains its reference positions. Imported from `7102.ETRI_2026` branch `study1-web`, commit `5352123`.
-This replaces the active interface only. The earlier sandbox code and preserved
-`v1.0/` remain in this folder and Git history; they are not loaded by this page.
+A local browser sandbox and interactive rehearsal of the revised Study 1. It has
+no external runtime dependencies. This is a demonstration, not the frozen
+participant protocol or a validated measurement system.
 
 ## Run
 
 ```sh
-cd web-prototype
 npm run dev
 ```
 
-Open <http://127.0.0.1:18791/>. No dependency installation or external service is
-required. Use HTTP rather than opening the HTML file directly, so the browser can
-load the JavaScript modules and bundled speech recordings.
+Open <http://127.0.0.1:18791/>. HTTP is required for the local speech recordings.
+Use headphones. `npm test` runs the model, mapping and protocol checks.
 
-## Controls
+## Sandbox
 
-- Click each bottom button to cycle cue design, trigger, object count and schedule.
-- Q turns left; E turns right. Holding a key turns continuously. Arrow keys also work.
-- Click the speaker to enable sound. It is red only while an object cue is sounding.
-- Automatic playback repeats after each complete cycle. Click the speaker or press
-  Space to pause/resume. Requested playback occurs only on a speaker click or Space;
-  additional requests during playback are ignored.
-- Click the inset to swap radar and first-person views. R also swaps them.
-- Click the bottom-right light bulb to hide both views behind an opaque gray layer. Click it again to restore the clear scene. The bulb is yellow while the layer is active and gray otherwise.
-- Shuffle samples all four properties and new object positions, then resets the
-  head direction to radar-up. A randomly sampled property may retain its old value.
-  Changing object count shows or hides objects from the current fixed layout,
-  including before the first shuffle. Only Shuffle chooses new positions.
-- Scheduling is disabled with one object; its previous choice returns with two or
-  three. The 20 distinct study combinations are available.
+The four buttons cycle verbal/nonverbal cues, automatic/requested playback,
+one/two/three objects, and sequential/simultaneous playback. Scheduling is disabled
+for one object. Q turns left, E right; holding either key keeps turning. Space or
+the speaker controls sound. Click the radar inset (or R) to swap views. The bulb
+hides the objects with an opaque shade. Shuffle changes the scene and properties,
+resets head direction, and places nonoverlapping objects at unique world clock
+bearings and half-metre rings. Count changes retain one common layout.
 
-## Scene and sound
+## Test rehearsal
 
-Every scene contains one, two or three equal-size cylinders: 0.8 m high, 0.52 m in
-diameter. Colors identify their positions visually; color does not change sound.
-The five radar rings are 0.5 m apart, covering 0.5–2.5 m. Shuffled cylinders use
-the twelve global clock bearings in 30-degree steps, with no two at the same
-bearing. Each object differs from its default position and cylinders do not intersect.
+Type **test** anywhere outside a text field.
+Random trials begin immediately. Type **stop** to end
+at any time and restore the previous sandbox scene and visibility setting.
 
-The scene is stationary. World +Z is radar-up / initial forward; +X is right.
-Head rotation changes the camera and the single audio listener, never the objects.
-The POV uses upright, flat-filled projected cylinders to match the reference
-drawing, with apparent size varying by distance. It is a diagram-style preview,
-not a physically complete scene renderer.
+- Targets are hidden by a gray viewport. The radar and target descriptions are
+  hidden too. The property, shuffle and bulb buttons are locked.
+- Automatic trials start and repeat their cues. Requested trials wait for Space
+  or the speaker; new requests during a cycle are ignored.
+- Move the pointer to preview a dotted direction ray, snapped to world-anchored
+  30-degree bearings. Click to fix the bearing. Move along that ray to choose
+  one of five evenly spaced distance points, then click to save the response.
+- Saved rays and dots remain anchored in the world when the head turns. Turn
+  with Q/E to report objects behind you. Backspace or undo cancels a pending ray
+  or removes the last response; Escape cancels a pending direction.
+- Saving all expected responses finishes the trial immediately.
+  The submit button also permits an incomplete report, including no objects reported.
+- The radar shows colored targets and black response lines/dots for three seconds,
+  then a new random trial starts. There is no fixed response deadline.
 
-Both cue designs use the browser's HRTF renderer and fixed world-space emitters.
-Spoken cues say the head-relative clock bearing and distance in metres. Labels
-are sampled at each message onset; spatialization continues updating during head
-turns. Nonverbal cues use pitch and level for distance. There are no sweeps or
-object-category sounds. Simultaneous speech actually overlaps: the bundled WAV
-recordings are played through Web Audio, not a serialized speech-synthesis queue.
+The 20 distinct valid combinations are sampled uniformly; this is not a balanced
+100-trial study schedule. Per-trial truth feedback and automatic completion at the
+known object count are rehearsal conveniences. The research protocol has no
+correctness feedback during main trials. Tests here omit NASA-TLX and interviews.
 
-See [AUDIO.md](AUDIO.md) for exact provisional audio settings and asset generation.
-The interface waits for an explicit user gesture before enabling sound, as required
-by browser autoplay policies. Automatic mode uses a 900 ms pause after a complete
-cycle. These are demo settings, not calibrated or frozen participant-study values.
-No response task, scoring, participant logging or questionnaires are implemented.
+## Learning and check
 
-## Verification
+Type **learn** separately in the sandbox. Each cue has five visible
+reference examples, then two randomized ten-trial, single-frontal-object checks.
+Every distance occurs twice per block. No correctness feedback is shown until
+both blocks finish. The provisional pass rule is at least 8/10 in both blocks and
+at least one correct response at every distance in each block. A pass advances
+from verbal to nonverbal, then to random trials. One extra teaching/check attempt
+is allowed after a failure. A skip remains available for exploring the demo;
+skips, failures and actual training durations are logged, not treated as mastery.
+Teaching lasts at most five minutes per cue before the check starts automatically.
 
-```sh
-npm test
-```
+Rehearsal events stay in memory; no data is transmitted. Hiding the page ends
+the rehearsal, preventing background timers or stale sound.
 
-Model and audio tests cover world coordinates, all 20 combinations, randomized
-ring placement, scheduling, distance coding and cancellation. Browser checks cover
-the controls, view swap, speaker states, actual concurrent speech start times,
-loading cancellation, missing-audio errors and responsive layout. Perceptual
-front/back accuracy and headphone loudness still require listening and piloting.
+## Coordinates, distance and scope
 
-Shuffle and speaker SVGs are vendored Font Awesome Free icons; their license is
-included in `assets/icons/LICENSE.txt`. All runtime assets are local.
+World +Z is initial forward / radar-up; +X is right. The listener stays fixed.
+All cylinders share a 0.8 m height and 0.52 m diameter. Rings are 0.5 m apart up to
+2.5 m. The POV is an upright diagram-style projection, not a complete 3D renderer.
+Response rays form a screen-space input fan: their five equally spaced positions
+represent range levels, not perspective distances. The review radar shows their
+actual world locations.
 
-## Study revision and publishing
+Both speech and beeps use fixed-world HRTF emitters and one head-tracked listener.
+Speech names clock bearing and metres; nonverbal distance uses five pitches, with
+constant source gain and no repetition-rate distance code. See [AUDIO.md](AUDIO.md).
+These gain settings are not a perceptual loudness calibration. Headphone listening,
+front/back accuracy, pitch discriminability and the learning criterion require
+piloting. Exact-grid matching is a demo score, not a validated study tolerance.
 
-This demo follows the recent Study 1 revisions: verbal/nonverbal cues, automatic/
-requested presentation, 1–3 objects and sequential/simultaneous scheduling. It is
-not an implementation of the older coverage-by-risk-filtering protocol in
-`docs/research/03-fixed-experimental-design.md`. That document has not been
-rewritten or treated as a frozen specification for this demo. The retained sweep
-sandbox uses its original frequency defaults; the new nonverbal cue spans
-260–1200 Hz. Both new cue designs are spatialized with HRTF.
+Source: `7102.ETRI_2026`, branch `study1-web`. Mirror the interface into
+`etri_360/web-prototype` and `leeguhn.github.io/360`; pushing the website's main
+branch triggers its existing Pages workflow. Preserve historical `v1.0/` and the
+unused sweep sandbox files when mirroring. The older coverage/filtering research
+document is not amended by this rehearsal.
 
-The deployed copy lives in `leeguhn.github.io/360/`. Publishing requires copying
-the interface and local assets there and pushing that repository’s `main` branch;
-pushing `etri_360` alone does not trigger the website workflow.
+Shuffle/speaker icons are Font Awesome Free assets; license in `assets/icons/`.

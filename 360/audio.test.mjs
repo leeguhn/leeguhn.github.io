@@ -2,11 +2,16 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { distanceCue, cycleOffsets, sourcePosition, listenerForward, CueAudio } from './audio.mjs';
 
-test('nearer objects use higher pitch and greater gain without changing duration', () => {
+test('distance coding uses five fixed pitches without a distance-gain code', () => {
   const near = distanceCue(0.5), far = distanceCue(2.5);
   assert.equal(near.frequency, 1200);
   assert.equal(far.frequency, 260);
-  assert.ok(near.gain > far.gain);
+  assert.equal(near.gain, far.gain);
+  assert.equal(distanceCue(0.51).frequency, near.frequency);
+  assert.equal(distanceCue(0.74).frequency, near.frequency);
+  assert.equal(distanceCue(0.76).frequency, distanceCue(1).frequency);
+  const pitches = new Set(Array.from({ length: 201 }, (_, i) => distanceCue(0.5 + i / 100).frequency));
+  assert.equal(pitches.size, 5);
   assert.equal(near.duration, far.duration);
   assert.equal(distanceCue(-2).frequency, near.frequency);
   assert.equal(distanceCue(9).frequency, far.frequency);

@@ -15,8 +15,10 @@ available around the full circle, including objects outside the visible POV.
   sampled at each object's message onset. The message is not rewritten midway
   through an utterance, but head-tracked spatialization continues. Speech keeps
   its natural pitch and has no distance-based gain or rate code.
-- **Nonverbal:** a 0.18-second harmonic beep. Distance from 0.5 to 2.5 m maps
-  linearly from 1,200 to 260 Hz and from 0.28 to 0.10 source gain. All objects use
+- **Nonverbal:** a 0.18-second harmonic beep. Distances 0.5, 1, 1.5, 2 and 2.5 m map
+  to five fixed pitches: 1200, 819, 559, 381 and 260 Hz. Values are rounded to
+  the nearest half-metre level, with no interpolation. Source gain remains 0.2
+  across all distances; loudness does not encode distance. All objects use
   the same fixed harmonic mixture; repetition rate is not a distance code.
 - **Sequential:** whole object messages play one at a time with 0.18 seconds
   between messages. Each speech label uses the head direction at its own onset.
@@ -25,7 +27,7 @@ available around the full circle, including objects outside the visible POV.
   queue would serialize utterances. Simultaneous speech may be hard to separate.
 
 Distance attenuation inside `PannerNode` is disabled, preventing an extra distance
-code from being added to speech or the beep's explicit gain mapping. Overall
+code from being added to speech or a second distance code for the beep. Overall
 master gain is 0.4. These settings are not perceptually equalized and do not imply
 that speech and beeps have equal information precision or loudness.
 
@@ -68,3 +70,17 @@ slightly change sequential-cycle length. No timing here is a study deadline.
 The Node tests cover distance mapping, scheduling, coordinates, duration and
 cancellation while browser unlock/loading is pending. They do not validate human
 localization performance, headphone fit, or physical loudness.
+
+## Revised study rehearsal
+
+The five pitches are log-spaced demonstration values within the existing
+260–1200 Hz band. Equal source gain does not guarantee equal perceived loudness;
+headphone calibration remains necessary. Learning examples, no-feedback checks
+and random trials all use this same mapping and the same speech buffers.
+Requested trials do not receive an automatic first readout: press Space or the
+speaker. Automatic trials repeat after the existing 900 ms cycle gap.
+
+The response UI and review timer do not move emitters or change their distance
+code. Mode switches and trial transitions cancel existing sources before new
+ones start. Per-trial radar feedback is a rehearsal feature, not the participant
+protocol. Numeric settings and learning thresholds remain provisional.

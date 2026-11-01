@@ -1,4 +1,5 @@
 import { RING_STEP, MAX_DISTANCE, CYLINDER_HEIGHT, CYLINDER_RADIUS } from './model.mjs';
+import { rayGeometry } from './protocol.mjs';
 
 // Live scene geometry, not image assets. Both views use the same world coordinates.
 function surface(canvas) {
@@ -12,9 +13,10 @@ function surface(canvas) {
   return { ctx, width, height };
 }
 
-export function drawRadar(canvas, state) {
+export function drawRadar(canvas, state, { responses = [], showTargets = true, review = false } = {}) {
   const { ctx: g, width: w, height: h } = surface(canvas);
-  const cx = w / 2, cy = h / 2, r = Math.min(w, h) * .45;
+  const reviewing = review;
+  const cx = w / 2, cy = h * (reviewing ? .54 : .5), r = Math.min(w, h) * (reviewing ? .37 : .45);
   g.strokeStyle = '#000'; g.lineWidth = Math.max(.8, Math.min(w, h) / 450);
   for (let metres = RING_STEP; metres <= MAX_DISTANCE; metres += RING_STEP) {
     g.beginPath(); g.arc(cx, cy, r * metres / MAX_DISTANCE, 0, Math.PI * 2); g.stroke();
@@ -23,9 +25,17 @@ export function drawRadar(canvas, state) {
   g.lineWidth = Math.max(1.5, dot / 5);
   g.beginPath(); g.moveTo(cx, cy); g.lineTo(cx + Math.sin(state.heading) * dot * 1.9, cy - Math.cos(state.heading) * dot * 1.9); g.stroke();
   g.fillStyle = '#000'; g.beginPath(); g.arc(cx, cy, dot, 0, Math.PI * 2); g.fill();
-  for (const object of state.objects) {
+  for (const object of showTargets ? state.objects : []) {
     g.fillStyle = object.color; g.beginPath();
     g.arc(cx + object.x / MAX_DISTANCE * r, cy - object.z / MAX_DISTANCE * r, dot * 1.05, 0, Math.PI * 2); g.fill();
+  }
+  for (const [index, answer] of responses.entries()) {
+    const x=cx+Math.sin(answer.bearing)*answer.distance/MAX_DISTANCE*r;
+    const y=cy-Math.cos(answer.bearing)*answer.distance/MAX_DISTANCE*r;
+    g.strokeStyle='#000';g.lineWidth=2;g.setLineDash([3,5]);
+    g.beginPath();g.moveTo(cx,cy);g.lineTo(x,y);g.stroke();g.setLineDash([]);
+    g.fillStyle='#000';g.beginPath();g.arc(x,y,Math.max(4,dot*.65),0,Math.PI*2);g.fill();
+    g.font='bold 13px Arial';g.fillText(String(index+1),x+10,y-8);
   }
 }
 
@@ -57,5 +67,28 @@ export function drawPOV(canvas, state) {
     g.fill(); g.stroke();
     g.beginPath(); g.ellipse(cx, bottom, rx, ry, 0, 0, Math.PI * 2); g.fill(); g.stroke();
     g.beginPath(); g.ellipse(cx, top, rx, ry, 0, 0, Math.PI * 2); g.fill(); g.stroke();
+  }
+}
+
+export function drawResponseOverlay(canvas, state, responses, draft = null) {
+  const {ctx:g,width:w,height:h}=surface(canvas);
+  g.fillStyle='#000';g.beginPath();g.arc(w/2,h*.92,5,0,Math.PI*2);g.fill();
+  for(const [index,response] of responses.entries()) drawRay(response,index+1,false);
+  if(draft) drawRay(draft,null,true);
+  function drawRay(response,index,preview){
+    const ray=rayGeometry(response.bearing,state.heading,w,h);if(!ray)return;
+    const {cx,cy,dx,dy,length}=ray;
+    g.strokeStyle='#000';g.fillStyle='#000';g.lineWidth=preview?4:5;
+    g.setLineDash([3,7]);g.beginPath();g.moveTo(cx,cy);g.lineTo(cx+dx*(length+28),cy+dy*(length+28));g.stroke();g.setLineDash([]);
+    const end={x:cx+dx*(length+28),y:cy+dy*(length+28)};
+    g.beginPath();g.moveTo(end.x,end.y);g.lineTo(end.x-dx*14+dy*7,end.y-dy*14-dx*7);g.lineTo(end.x-dx*14-dy*7,end.y-dy*14+dx*7);g.closePath();g.fill();
+    if(preview&&response.distance!==null){
+      for(let i=1;i<=5;i++){g.beginPath();g.arc(cx+dx*length*i/5,cy+dy*length*i/5,6,0,Math.PI*2);g.stroke();}
+    }
+    if(response.distance!==null){
+      const f=response.distance/2.5,x=cx+dx*length*f,y=cy+dy*length*f;
+      g.beginPath();g.arc(x,y,10,0,Math.PI*2);g.fill();
+      g.font='bold 13px Arial';g.textAlign='left';g.fillText(`${index?index+': ':''}${response.distance.toFixed(1)} m`,x+12,y-8);
+    }
   }
 }
